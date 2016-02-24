@@ -23,7 +23,8 @@ setup(
       entry_points={
               'console_scripts' : [
                        'du_spush = du.android.smartpush.AndroidSmartPushApp:main',
-                       'du_rnotes = du.git.ReleaseNotesApp:main'
+                       'du_rnotes = du.git.ReleaseNotesApp:main',
+                       'du_pb = du.pastebin.App:main'
                ]
       }
 )
