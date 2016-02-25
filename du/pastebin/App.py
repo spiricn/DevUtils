@@ -21,6 +21,7 @@ def main():
     parser.add_argument('-file')
     parser.add_argument('-text')
     parser.add_argument('-name')
+    parser.add_argument('-format')
 
     defaultFormat = FORMAT_NONE
     defaultExpiry = EXPIRE_1_DAY
@@ -30,13 +31,17 @@ def main():
 
     # TODO format, expiry, visibility arguments
 
-    format = defaultFormat
     expiry = defaultExpiry
     visibility = defaultVisibility
 
     pasteName = 'Untitled'
     if args.name:
         pasteName = args.name
+
+    if args.format:
+        textFormat = args.format
+    else:
+        textFormat = defaultFormat
 
     try:
         pbin = PastebinPython(api_dev_key=args.key)
@@ -46,9 +51,9 @@ def main():
         res = None
 
         if args.file:
-            res = pbin.createPasteFromFile(args.file, pasteName, format, visibility, expiry)
+            res = pbin.createPasteFromFile(args.file, pasteName, textFormat, visibility, expiry)
         elif args.text:
-            res = pbin.createPaste(args.text, pasteName, format, visibility, expiry)
+            res = pbin.createPaste(args.text, pasteName, textFormat, visibility, expiry)
         else:
             parser.error('Neither file not text specified')
             return -1
