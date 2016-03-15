@@ -1,6 +1,7 @@
 from collections import namedtuple
 import re
 import subprocess
+from du.Utils import shellCommand
 
 
 RemoteHead = namedtuple('RemoteBranch', 'hash, name')
@@ -10,11 +11,14 @@ LogItem = namedtuple('LogItem', 'hash, title')
 gerritChangeIdRegex = re.compile(r'^Change-Id: (I[a-fA-F0-9]+)$')
 
 def getLog(repo):
-    pipe = subprocess.Popen(['git', 'log', '--pretty=oneline'], stdout=subprocess.PIPE, cwd=repo)
+    cmdRes = shellCommand(['git', 'log', '--pretty=oneline'])
+
+    if cmdRes.rc != 0:
+        return None
 
     items = []
 
-    for line in pipe.stdout:
+    for line in cmdRes.stdout:
         spliter = line.find(' ')
 
         commitHash = line[:spliter].strip()
@@ -25,13 +29,13 @@ def getLog(repo):
     return items
 
 def lsRemote(repo):
-    pipe = subprocess.Popen(['git', 'ls-remote'], stdout=subprocess.PIPE, cwd=repo)
+    cmdRes = shellCommand(['git', 'ls-remote'])
 
     heads = []
     head = ''
     changes = []
 
-    for line in pipe.stdout:
+    for line in cmdRes.stdout:
         commitHash, info = line.split('\t')
 
         if 'refs/changes' in info:
@@ -56,10 +60,10 @@ def lsRemote(repo):
     return RemoteInfo(head, changes, heads)
 
 def getCommitMessage(repo, commitHash):
-    pipe = subprocess.Popen(['git', 'show', '-s', '--format=%B', commitHash], stdout=subprocess.PIPE, cwd=repo)
+    cmdRes = shellCommand(['git', 'show', '-s', '--format=%B', commitHash])
 
     message = ''
-    for line in pipe.stdout:
+    for line in cmdRes.stdout:
         message += line
 
     return message
