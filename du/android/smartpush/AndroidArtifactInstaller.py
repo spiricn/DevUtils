@@ -3,7 +3,6 @@ from du.Utils import shellCommand
 import filecmp
 import logging
 import os
-from pip import cmdoptions
 
 
 TYPE_INVALID, \
