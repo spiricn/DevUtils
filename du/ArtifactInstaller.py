@@ -1,6 +1,11 @@
 from collections import namedtuple
-from du.Utils import getFileTimestamp
+from du.Utils import getFileTimestamp, makeDirTree
+import filecmp
+import hashlib
+import logging
+import os
 import pickle
+import shutil
 
 
 STATUS_SKIPPED, \
@@ -12,18 +17,31 @@ Artifact.__new__.__defaults__ = (-1, None, None, False)
 
 InstallStatistics = namedtuple('InstallStatistics', 'numUpToDate, numInstalled, numErrors')
 
+logger = logging.getLogger(__name__)
+
+class ArtifactMeta:
+    def __init__(self):
+        self.timestamp = None
+        self.cache = None
+
 class ArtifactInstaller:
-    def __init__(self, artifacts, timestampFilePath):
-        self._timestampFilePath = timestampFilePath
+    def __init__(self, artifacts, workingDirectory='.du_artifact_installer'):
+        self._workDir = workingDirectory
+        self._metaFilePath = os.path.join(self._workDir, 'timestamps')
+        self._cacheDir = os.path.join(self._workDir, 'cache')
         self._artifacts = artifacts
-        self._loadTimestamps()
+
+        makeDirTree(self._workDir)
+        makeDirTree(self._cacheDir)
+
+        self._loadMeta()
 
     def installArtifact(self, artifact):
         raise NotImplementedError('Not implemented')
 
     def install(self, force):
         if force:
-            self._timestamps = {}
+            self._meta = {}
 
 
         self._force = force
@@ -46,7 +64,7 @@ class ArtifactInstaller:
             else:
                 raise RuntimeError('Sanity check fail')
 
-        self._saveTimestamps()
+        self._saveMeta()
 
         return InstallStatistics(numUpToDate, numInstalled, numErrors)
 
@@ -56,32 +74,52 @@ class ArtifactInstaller:
     def artifactNeedsUpdate(self, artifact):
         raise NotImplementedError('Not implemented')
 
-    def _loadTimestamps(self):
+    def _loadMeta(self):
         try:
-            with open(self._timestampFilePath, 'rb') as fileObj:
-                self._timestamps = pickle.load(fileObj)
+            with open(self._metaFilePath, 'rb') as fileObj:
+                self._meta = pickle.load(fileObj)
         except:
-            self._timestamps = {}
+            self._meta = {}
 
-    def _saveTimestamps(self):
-        with open(self._timestampFilePath, 'wb') as fileObj:
-            pickle.dump(self._timestamps, fileObj)
+    def _saveMeta(self):
+        with open(self._metaFilePath, 'wb') as fileObj:
+            pickle.dump(self._meta, fileObj)
 
     def _isFileUpToDate(self, path):
         newTimestamp = getFileTimestamp(path)
 
-        if path in self._timestamps:
-            savedTimestamp = self._timestamps[path]
+        if path in self._meta:
+            savedTimestamp = self._meta[path].timestamp
 
-            return savedTimestamp == newTimestamp
+            if savedTimestamp != newTimestamp:
+                # Check contents
+                cachePath = self._getArtifactCachePath(path)
 
+                if os.path.exists(cachePath):
+                    return filecmp.cmp(cachePath, path)
+                else:
+                    return False
+            else:
+                return True
         else:
             return False
+
+    def _encodePath(self, path):
+        m = hashlib.md5()
+
+        m.update(path)
+
+        return m.hexdigest()
+
+    def _getArtifactCachePath(self, fullPath):
+        return os.path.join(self._cacheDir, self._encodePath(fullPath))
 
     def _installArtifact(self, artifact):
         fullPath = self.getFullArtifactPath(artifact)
         if self._isFileUpToDate(fullPath):
             return STATUS_SKIPPED
+
+        cachePath = self._getArtifactCachePath(fullPath)
 
         if not self._force and (artifact.checkDifference and self.artifactNeedsUpdate(artifact)):
             return STATUS_SKIPPED
@@ -89,6 +127,15 @@ class ArtifactInstaller:
         if not self.installArtifact(artifact):
             return STATUS_ERROR
 
-        self._timestamps[fullPath] = getFileTimestamp(fullPath)
+        if fullPath not in self._meta:
+            meta = ArtifactMeta()
+            self._meta[fullPath] = meta
+        else:
+            meta = self._meta[fullPath]
+
+        meta.timestamp = getFileTimestamp(fullPath)
+
+        # Copy to cache
+        shutil.copy(fullPath, cachePath)
 
         return STATUS_INSTALLED
