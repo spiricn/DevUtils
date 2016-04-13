@@ -62,7 +62,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
         cmdRes = shellCommand(cmd)
 
         if cmdRes.rc != 0:
-            logger.error('Shell command failed: ' + cmdRes.rc)
+            logger.error('Shell command %r failed: %d' % (cmd, cmdRes.rc))
             return False
 
         res = filecmp.cmp(sourcePath, tmpFile)
