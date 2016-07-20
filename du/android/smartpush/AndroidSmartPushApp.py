@@ -26,7 +26,8 @@ class Manifest:
 
 def main():
     # Setup logging
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(levelname)s/%(name)s: %(message)s')
 
     parser = argparse.ArgumentParser()
 
@@ -67,6 +68,8 @@ def main():
         logger.error(traceback.format_exc())
         return -1
 
+    logger.debug('#' * 40)
+
     if res.numInstalled:
         logger.debug('Installed: %d' % res.numInstalled)
 
@@ -74,7 +77,12 @@ def main():
         logger.debug('Skipped: %d' % res.numUpToDate)
 
     if res.numErrors:
+        logger.error('Errors: %d' % res.numErrors)
+
+    if res.numErrors:
         return -1
+
+    return 0
 
 if __name__ == '__main__':
     sys.exit(main())

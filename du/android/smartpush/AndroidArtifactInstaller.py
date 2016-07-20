@@ -11,7 +11,7 @@ TYPE_BIN, \
 TYPE_APK, \
 TYPE_CUSTOM = range(5)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__.split('.')[-1])
 
 class AndroidArtifactInstaller(ArtifactInstaller):
     def __init__(self, artifacts, androidRoot, productName, timestampFilePath, adb='adb'):
@@ -94,10 +94,40 @@ class AndroidArtifactInstaller(ArtifactInstaller):
     def getAPKPath(self, name):
         return os.path.join(self.appDir, os.path.splitext(name)[0], name)
 
+    def isDeviceOnline(self):
+        magic = 42
+
+        cmd = shellCommand([self._adb, 'shell', 'echo %d' % magic])
+
+        if cmd.rc != 0 or cmd.stdout.strip() != str(magic):
+            logger.error('Device offline (%d): %s %s' % (cmd.rc, cmd.stdout, cmd.stderr))
+            return False
+
+        return True
+
     def _push(self, source, dest):
-        cmd = self._adb + ' push %s %s' % (source, dest)
+        if not self.isDeviceOnline():
+            return False
+
         logger.debug('Pushing: %r' % os.path.basename(source))
 
-        cmdRes = shellCommand(cmd)
+        destDir = os.path.dirname(dest)
 
-        return cmdRes.rc == 0
+        cmd = shellCommand([self._adb, 'shell', 'if [ -d %s ]; then echo 1; else echo 0; fi' % destDir])
+        if cmd.rc != 0:
+            logger.error('Error checking directory (%d): %s' % (cmd.rc, cmd.stderr))
+            return False
+        elif cmd.stdout.strip() == '0':
+            logger.debug('Creating directory %s' % destDir)
+
+            cmd = shellCommand([self._adb, 'shell', 'mkdir', '-p', destDir])
+            if cmd.rc != 0:
+                logger.error('Error creating directory (%d): %s' % (cmd.rc, cmd.stdout))
+                return False
+
+        cmd = shellCommand(self._adb + ' push %s %s' % (source, dest))
+        if cmd.rc != 0:
+            logger.error('Error pushing file (%d): %s %s' % (cmd.rc, cmd.stdout, cmd.stderr))
+            return False
+
+        return True
