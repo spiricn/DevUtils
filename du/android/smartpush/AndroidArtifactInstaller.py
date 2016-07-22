@@ -11,6 +11,10 @@ TYPE_BIN, \
 TYPE_APK, \
 TYPE_CUSTOM = range(5)
 
+APK_TYPE_KEY = 'type'
+APK_TYPE_SYSTEM = 'system'
+APK_TYPE_USER = 'user'
+
 logger = logging.getLogger(__name__.split('.')[-1])
 
 class AndroidArtifactInstaller(ArtifactInstaller):
@@ -46,7 +50,24 @@ class AndroidArtifactInstaller(ArtifactInstaller):
         elif artifact.type == TYPE_BIN:
             return self._push(sourcePath, '/system/bin/')
         elif artifact.type == TYPE_APK:
-            return self._push(sourcePath, os.path.join('/system/app', os.path.splitext(artifact.source)[0] + "/"))
+            if APK_TYPE_KEY not in artifact.opts:
+                raise RuntimeError('APK type not specified')
+
+            apkType = artifact.opts[APK_TYPE_KEY]
+
+            if apkType == APK_TYPE_SYSTEM:
+                return self._push(sourcePath, os.path.join('/system/app', os.path.splitext(artifact.source)[0] + "/"))
+            elif apkType == APK_TYPE_USER:
+                logger.debug('Installing: %r' % os.path.basename(sourcePath))
+
+                cmd = shellCommand([self._adb, 'install', '-r', sourcePath])
+                if cmd.rc != 0:
+                    logger.error('Error installing apk (%d): %s %s', cmd.rc, cmd.stdout, cmd.stderr)
+                    return False
+                return True
+            else:
+                raise RuntimeError('Invalid apk type %r' % apkType)
+
         elif artifact.type == TYPE_CUSTOM:
             return self._push(sourcePath, artifact.dest)
         else:

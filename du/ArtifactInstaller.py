@@ -12,8 +12,8 @@ STATUS_SKIPPED, \
 STATUS_INSTALLED, \
 STATUS_ERROR = range(3)
 
-Artifact = namedtuple('Artifact', 'type, source, dest, checkDifference')
-Artifact.__new__.__defaults__ = (-1, None, None, False)
+Artifact = namedtuple('Artifact', 'type, source, dest, checkDifference, opts')
+Artifact.__new__.__defaults__ = (-1, None, None, False, {})
 
 InstallStatistics = namedtuple('InstallStatistics', 'numUpToDate, numInstalled, numErrors')
 
