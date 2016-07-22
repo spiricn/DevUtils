@@ -1,7 +1,7 @@
 from collections import namedtuple
 import os
 import subprocess
-
+import tarfile
 
 CommandRes = namedtuple('CommandRes', 'stdout, stderr, rc')
 
@@ -18,9 +18,14 @@ def shellCommand(command):
 
     return CommandRes(res[0], res[1], pipe.returncode)
 
-
 def makeDirTree(path):
     if os.path.exists(path) and os.path.isdir(path):
         return
 
     os.makedirs(path)
+
+def archiveDirectory(archivePath, dirPath):
+    t = tarfile.open(archivePath, mode='w')
+
+    t.add(dirPath, arcname=os.path.basename(dirPath))
+    t.close()

@@ -6,6 +6,7 @@ import logging
 import os
 import pickle
 import shutil
+import tarfile
 
 
 STATUS_SKIPPED, \
@@ -67,6 +68,23 @@ class ArtifactInstaller:
         self._saveMeta()
 
         return InstallStatistics(numUpToDate, numInstalled, numErrors)
+
+    def createArchive(self, archivePath):
+        out = tarfile.open(archivePath, mode='w')
+
+        for artifact in self._artifacts:
+            fullPath = self.getFullArtifactPath(artifact)
+
+            archivePath = self.getArtifactArchivePath(artifact)
+
+            logger.debug('Packing: %r -> %r' % (os.path.basename(fullPath), archivePath))
+
+            out.add(fullPath, archivePath)
+
+        out.close()
+
+    def getArtifactArchivePath(self, artifact):
+        raise NotImplementedError('Not implemented')
 
     def getFullArtifactPath(self, artifact):
         raise NotImplementedError('Not implemented')

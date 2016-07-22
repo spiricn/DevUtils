@@ -15,6 +15,10 @@ APK_TYPE_KEY = 'type'
 APK_TYPE_SYSTEM = 'system'
 APK_TYPE_USER = 'user'
 
+LIB_DEST_DIR = '/system/lib'
+BIN_DEST_DIR = '/system/bin'
+APP_DEST_DIR = '/system/app'
+
 logger = logging.getLogger(__name__.split('.')[-1])
 
 class AndroidArtifactInstaller(ArtifactInstaller):
@@ -38,6 +42,22 @@ class AndroidArtifactInstaller(ArtifactInstaller):
 
         elif artifact.type == TYPE_CUSTOM:
             return os.path.join(self.outDir, artifact.source)
+
+        else:
+            raise RuntimeError('Unhandled artifact type %d' % artifact.type)
+
+    def getArtifactArchivePath(self, artifact):
+        if artifact.type == TYPE_LIB:
+            return os.path.join(LIB_DEST_DIR, artifact.source)
+
+        elif artifact.type == TYPE_BIN:
+            return os.path.join(BIN_DEST_DIR, artifact.source)
+
+        elif artifact.type == TYPE_APK:
+            return os.path.join(APP_DEST_DIR, artifact.source)
+
+        elif artifact.type == TYPE_CUSTOM:
+            return artifact.source
 
         else:
             raise RuntimeError('Unhandled artifact type %d' % artifact.type)
