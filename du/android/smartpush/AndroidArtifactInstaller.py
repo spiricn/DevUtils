@@ -57,7 +57,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
             return os.path.join(APP_DEST_DIR, artifact.source)
 
         elif artifact.type == TYPE_CUSTOM:
-            return artifact.source
+            return artifact.destination
 
         else:
             raise RuntimeError('Unhandled artifact type %d' % artifact.type)
@@ -89,7 +89,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
                 raise RuntimeError('Invalid apk type %r' % apkType)
 
         elif artifact.type == TYPE_CUSTOM:
-            return self._push(sourcePath, artifact.dest)
+            return self._push(sourcePath, artifact.destination)
         else:
             raise RuntimeError('Unhandled artifact type %d' % artifact.type)
 
@@ -98,7 +98,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
 
         tmpFile = os.popen('mktemp').read().rstrip()
 
-        cmd = self._adb + ' pull ' + artifact.dest + ' ' + tmpFile
+        cmd = self._adb + ' pull ' + artifact.destination + ' ' + tmpFile
 
         cmdRes = shellCommand(cmd)
 
