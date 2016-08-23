@@ -1,6 +1,5 @@
 from collections import namedtuple
 import re
-import subprocess
 from du.Utils import shellCommand
 
 
@@ -11,14 +10,14 @@ LogItem = namedtuple('LogItem', 'hash, title')
 gerritChangeIdRegex = re.compile(r'^Change-Id: (I[a-fA-F0-9]+)$')
 
 def getLog(repo):
-    cmdRes = shellCommand(['git', 'log', '--pretty=oneline'])
+    cmdRes = shellCommand(['git', '-C', repo, 'log', '--pretty=oneline'])
 
     if cmdRes.rc != 0:
         return None
 
     items = []
 
-    for line in cmdRes.stdout:
+    for line in cmdRes.stdout.splitlines():
         spliter = line.find(' ')
 
         commitHash = line[:spliter].strip()
@@ -29,13 +28,13 @@ def getLog(repo):
     return items
 
 def lsRemote(repo):
-    cmdRes = shellCommand(['git', 'ls-remote'])
+    cmdRes = shellCommand(['git', 'ls-remote', repo])
 
     heads = []
     head = ''
     changes = []
 
-    for line in cmdRes.stdout:
+    for line in cmdRes.stdout.splitlines():
         commitHash, info = line.split('\t')
 
         if 'refs/changes' in info:
@@ -60,7 +59,9 @@ def lsRemote(repo):
     return RemoteInfo(head, changes, heads)
 
 def getCommitMessage(repo, commitHash):
-    cmdRes = shellCommand(['git', 'show', '-s', '--format=%B', commitHash])
+    assert(len(commitHash) == 40)
+    
+    cmdRes = shellCommand(['git', '-C', repo, 'show', '-s', '--format=%B', commitHash])
 
     message = ''
     for line in cmdRes.stdout:
@@ -69,12 +70,13 @@ def getCommitMessage(repo, commitHash):
     return message
 
 def getCommitGerritChangeId(message):
-    lastLine = message.splitlines(False)[-1]
-
-    matches = gerritChangeIdRegex.findall(lastLine)
-
-    if len(matches) != 1:
-        return None
-
-    return matches[0]
+    for line in reversed(message.splitlines()):
+        matches = gerritChangeIdRegex.findall(line)
+    
+        if len(matches) != 1:
+            continue
+    
+        return matches[0]
+    
+    return None
 

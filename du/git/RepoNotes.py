@@ -6,10 +6,11 @@ from du.git import Git
 logger = logging.getLogger(__name__)
 
 class RepoNotes:
-    def __init__(self, repo):
-        self._repo = repo
-        self._remoteInfo = Git.lsRemote(repo)
-        self._log = Git.getLog(repo)
+    def __init__(self, repoDir, repoUrl):
+        self._repoDir = repoDir
+        self._repoUrl = repoUrl
+        self._remoteInfo = Git.lsRemote(self._repoUrl)
+        self._log = Git.getLog(self._repoDir)
         self.buildNotes()
 
     @property
@@ -30,24 +31,24 @@ class RepoNotes:
         res = ''
 
         for commit in self._log[:history]:
+            # skip head
             if commit.hash == self._remoteInfo.head:
                 continue
 
-            changeId = Git.getCommitGerritChangeId(Git.getCommitMessage(self._repo, commit.hash))
+            # check if this change id is in repository remote list
             change = self.findChange(commit.hash)
 
             number = '-'
             patchset = '-'
 
             if change:
+                # change is on gerrit
                 number = '%d' % change.number
                 patchset = '%d' % change.patchset
 
-            elif changeId:
-                number = changeId
-
             else:
-                logger.warning('Could not find change %s in repo %r' % (commit.hash, self._repo))
+                # change not on gerrit or cherry picked
+                logger.warning('Could not find change %s in repo %r' % (commit.hash, self._repoDir))
 
             res += ' + %s/%s : %s\n' % (number, patchset, commit.title)
 
