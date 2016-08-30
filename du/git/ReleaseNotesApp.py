@@ -32,9 +32,9 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('repos', nargs='+')
-    parser.add_argument('title')
-    parser.add_argument('output')
+    parser.add_argument('repos', nargs='+', help='List of repositorie: name1 url1 path1 name2 url2 path2 ...')
+    parser.add_argument('title', help='File title')
+    parser.add_argument('output', help='Output file path')
 
     args = parser.parse_args()
 

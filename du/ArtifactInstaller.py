@@ -19,7 +19,7 @@ class Artifact(object):
         self._destination = destination
         self._checkDifference = checkDifference
         self._opts = opts
-        self._install = True
+        self._install = install
 
     @property
     def type(self):
