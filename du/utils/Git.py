@@ -8,6 +8,7 @@ RemoteItem = namedtuple('RemoteItem', 'hash, number, patchset')
 RemoteInfo = namedtuple('RemoteInfo', 'head, changes, heads')
 LogItem = namedtuple('LogItem', 'hash, title')
 gerritChangeIdRegex = re.compile(r'^Change-Id: (I[a-fA-F0-9]+)$')
+Change = namedtuple('Change', 'number, ps')
 
 def getLog(repo):
     cmdRes = shellCommand(['git', '-C', repo, 'log', '--pretty=oneline'])
@@ -27,11 +28,34 @@ def getLog(repo):
 
     return items
 
+def getChangeHash(repo, change, remotes=None):
+    remotes = lsRemote(repo) if not remotes else remotes
+
+    if change.ps == None:
+        latestPs = getLatestPatchset(repo, change.number, remotes)
+        for i in remotes.changes:
+            if i.patchset == latestPs and change.number == i.number:
+                return i.hash
+    else:
+        for i in remotes.changes:
+            if i.number == change.number and i.patchset == change.ps:
+                return i.hash
+
+    return None
+
+def findRemote(repo, commitHash, remotes=None):
+    remotes = lsRemote(repo) if not remotes else remotes
+
+    for change in remotes.changes:
+        if change.hash == commitHash:
+            return change
+
+    return None
+
 def lsRemote(repo):
     cmdRes = shellCommand(['git', 'ls-remote', repo])
     if cmdRes.rc != 0:
         raise RuntimeError('Command failed (%d): %r' % (cmdRes.rc, cmdRes.stderr))
-
     heads = []
     head = ''
     changes = []
@@ -83,4 +107,18 @@ def getCommitGerritChangeId(message):
         return matches[0]
 
     return None
+
+def getLatestPatchset(remoteUrl, change, remotes=None):
+    patchsets = []
+
+    remotes = lsRemote(remoteUrl) if not remotes else remotes
+
+    for i in remotes.changes:
+        if i.number == change:
+            patchsets.append(i.patchset)
+
+    if patchsets:
+        return max(patchsets)
+    else:
+        return None
 

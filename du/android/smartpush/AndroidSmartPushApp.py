@@ -3,7 +3,7 @@ from du.android.smartpush.AndroidArtifactInstaller import AndroidArtifactInstall
 import logging
 import sys
 import traceback
-
+from utils.Git import Change
 
 logger = logging.getLogger(__name__)
 
