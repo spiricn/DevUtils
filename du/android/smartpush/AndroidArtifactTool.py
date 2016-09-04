@@ -1,9 +1,10 @@
 import argparse
-from du.android.smartpush.AndroidArtifactInstaller import AndroidArtifactInstaller
-from du.android.smartpush.AndroidSmartPushApp import Manifest
 import logging
 import sys
 import traceback
+
+from du.android.smartpush.AndroidArtifactInstaller import AndroidArtifactInstaller
+from du.android.smartpush.ArtifactManifest import ArtifactManifest
 
 
 logger = logging.getLogger(__name__)
@@ -22,9 +23,9 @@ def main():
 
     args = parser.parse_args()
 
-    manifest = Manifest(args.manifest)
+    manifest = ArtifactManifest(args.manifest)
     try:
-        artifacts = manifest.getArtifacts()
+        artifacts = manifest.parse()
     except Exception as e:
         logger.error('Error getting artifacts: %r' % str(e))
         return -1

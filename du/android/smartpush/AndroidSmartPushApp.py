@@ -1,28 +1,14 @@
 import argparse
-from du.android.smartpush.AndroidArtifactInstaller import AndroidArtifactInstaller
 import logging
 import sys
 import traceback
-from utils.Git import Change
+
+from du.android.smartpush import ArtifactManifest
+from du.android.smartpush.AndroidArtifactInstaller import AndroidArtifactInstaller
+
 
 logger = logging.getLogger(__name__)
 
-class Manifest:
-    GET_ARTIFACTS_FNC_NAME = 'getArtifacts'
-
-    def __init__(self, path):
-        self._path = path
-
-    def getArtifacts(self):
-        env = {}
-
-        with open(self._path, 'rb') as fileObj:
-            exec(fileObj.read(), env)
-
-            if self.GET_ARTIFACTS_FNC_NAME not in env:
-                raise RuntimeError('Function %r not found in %r' % (self.GET_ARTIFACTS_FNC_NAME, self._path))
-
-            return env[self.GET_ARTIFACTS_FNC_NAME]()
 
 def main():
     # Setup logging
@@ -40,9 +26,9 @@ def main():
 
     args = parser.parse_args()
 
-    manifest = Manifest(args.manifest)
+    manifest = ArtifactManifest(args.manifest)
     try:
-        artifacts = manifest.getArtifacts()
+        artifacts = manifest.parse()
     except Exception as e:
         logger.error('Error getting artifacts: %r' % str(e))
         return -1
