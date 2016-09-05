@@ -34,6 +34,9 @@ class DRepo:
         if not os.path.exists(repoDir):
             logger.debug('initializing repo at %r ..' % repoDir)
             ShellCommand.run('repo init -u ' + self.repoRemotePath, self._manifest.root)
+        else:
+            logger.debug('resetting source ..')
+            ShellCommand.run(['repo', 'forall', '-c', 'git reset --hard'], self._manifest.root)
 
         logger.debug('synchronizing ..')
         ShellCommand.run('repo sync -j8', self._manifest.root)
