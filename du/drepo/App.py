@@ -4,6 +4,7 @@ import sys
 import traceback
 
 from du.drepo.DRepo import DRepo
+from du.drepo.Manifest import Manifest
 
 
 def main():
@@ -17,6 +18,8 @@ def main():
     parser.add_argument('-manifest_file')
     parser.add_argument('-manifest_source')
     parser.add_argument('-notes')
+    parser.add_argument('-sync', action='store_true')
+
 
     args = parser.parse_args()
 
@@ -25,25 +28,40 @@ def main():
         return -1
     elif args.manifest_file:
         with open(args.manifest_file, 'rb') as fileObj:
-            manifest = fileObj.read()
+            manifestSource = fileObj.read()
 
     elif args.manifest_source:
-        manifest = args.manifest_source
+        manifestSource = args.manifest_source
 
     else:
         logger.error('manifest not provided')
         return -1;
 
-    try:
-        drepo = DRepo(manifest, args.notes)
-        drepo.run()
+    logger.debug('parsing manifest ..')
 
-        return 0
-    except Exception:
-        traceback.print_exc(file=sys.stdout)
-        logger.error('-----------------------------------')
-        logger.error('drepo failed')
-        return -1
+
+    manifest = Manifest(manifestSource)
+
+    if args.sync:
+        try:
+            drepo = DRepo(manifest)
+            drepo.run()
+
+        except Exception:
+            traceback.print_exc(file=sys.stdout)
+            logger.error('-----------------------------------')
+            logger.error('drepo failed')
+            return -1
+
+    if args.notes:
+        logger.debug('generating notes ..')
+        DRepo.generateNotes(manifest, args.notes)
+
+    logger.debug('-------------------------------')
+    logger.debug('done')
+
+    return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

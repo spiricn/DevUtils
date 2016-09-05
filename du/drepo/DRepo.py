@@ -2,7 +2,6 @@ import logging
 import os
 import shutil
 
-from du.drepo.Manifest import Manifest
 from du.drepo.ReleaseNoteWriter import ReleaseNotesHtmlWriter
 from du.utils import Git
 from du.utils.Git import Change
@@ -16,14 +15,10 @@ class DRepo:
     REPO_NAME = '.repo'
     MANIFEST_NAME = 'default.xml'
 
-    def __init__(self, manifestCode, notesFile=None):
-        self._manifestCode = manifestCode
-        self._notesFile = notesFile
+    def __init__(self, manifest):
+        self._manifest = manifest
 
     def run(self):
-        logger.debug('parsing manifest ..')
-        self._manifest = Manifest(self._manifestCode)
-
         # Create repo remote
         if not os.path.exists(self.repoRemotePath):
             logger.debug('creating remote repo at %r ..' % self.repoRemotePath)
@@ -45,13 +40,6 @@ class DRepo:
 
         logger.debug('applying cherry-picks ..')
         self._applyCherryPicks()
-
-        if self._notesFile:
-            logger.debug('generating release notes ..')
-            self._generateNotes()
-
-        logger.debug('-------------------------------')
-        logger.debug('done')
 
     def _updateManifest(self):
         res = ShellCommand.run('mktemp -d')
@@ -91,18 +79,19 @@ class DRepo:
 
                 ShellCommand.run('repo download -c %s %d/%d' % (proj.name, change.number, change.ps), self._manifest.root)
 
-    def _generateNotes(self):
-        writer = ReleaseNotesHtmlWriter(self._manifest)
+    @staticmethod
+    def generateNotes(manifest, outputFile):
+        writer = ReleaseNotesHtmlWriter(manifest)
 
         historyLength = 15
 
         writer.start()
 
-        for proj in self._manifest.projects:
+        for proj in manifest.projects:
             logger.debug('for %s ..' % proj.name)
             writer.startProject(proj)
 
-            localDir = os.path.join(self._manifest.root, proj.path)
+            localDir = os.path.join(manifest.root, proj.path)
 
             log = Git.getLog(localDir)[:-1]
 
@@ -114,7 +103,7 @@ class DRepo:
                 commitHash = Git.getChangeHash(proj.url, change, remotes)
                 assert(commitHash != None)
 
-                res = ShellCommand.run('git log --format=%s -n 1 ' + commitHash, os.path.join(self._manifest.root, proj.path))
+                res = ShellCommand.run('git log --format=%s -n 1 ' + commitHash, os.path.join(manifest.root, proj.path))
 
                 title = res.stdoutStr.strip()
 
@@ -125,7 +114,7 @@ class DRepo:
                 if ps == None:
                     ps = Git.getLatestPatchset(proj.url, change.number, remotes)
 
-                writer.addChange(change.number, ps, title)
+                writer.addChange(change.number, ps, title, cherryPick=True)
 
                 cherryPickHashes.append(commitHash)
 
@@ -139,7 +128,7 @@ class DRepo:
             for entry in log:
                 remoteItem = Git.findRemote(proj.url, entry.hash, remotes)
                 if remoteItem:
-                    writer.addChange(remoteItem.number, remoteItem.patchset, entry.title)
+                    writer.addChange(remoteItem.number, remoteItem.patchset, entry.title, cherryPick=False)
                     historyLength -= 1
 
                     if not historyLength:
@@ -148,7 +137,7 @@ class DRepo:
                     changeId = Git.getCommitGerritChangeId(Git.getCommitMessage(localDir, entry.hash))
 
                     logger.warning('Could not find change for %s, changeId=%s' % (str(entry), changeId))
-                    writer.addChange(-1, -1, entry.title)
+                    writer.addChange(-1, -1, entry.title, cherryPick=False)
 
                 maxHistory -= 1
 
@@ -159,11 +148,10 @@ class DRepo:
 
         writer.end()
 
-        if self._notesFile:
-            with open(self._notesFile, 'wb') as fileObj:
-                fileObj.write(writer.notes)
+        with open(outputFile, 'wb') as fileObj:
+            fileObj.write(writer.notes)
 
-                logger.debug('notes written to %r' % self._notesFile)
+            logger.debug('notes written to %r' % outputFile)
 
     @property
     def repoRemotePath(self):

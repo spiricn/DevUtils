@@ -11,7 +11,7 @@ class ReleaseNotesWriterBase:
     def endProject(self):
         raise NotImplementedError()
 
-    def addChange(self, number, ps, title):
+    def addChange(self, number, ps, title, cherryPick):
         raise NotImplementedError()
 
     def end(self):
@@ -37,7 +37,7 @@ class ReleaseNotesTextWriter(ReleaseNotesWriterBase):
     def endProject(self):
         pass
 
-    def addChange(self, number, ps, title):
+    def addChange(self, number, ps, title, cherryPick):
         self.write(' + %d/%d : %s\n' % (number, ps, title))
 
     def end(self):
@@ -56,22 +56,32 @@ class ReleaseNotesHtmlWriter(ReleaseNotesWriterBase):
         self._remoteHttpUrl = 'http://' + self._manifest.getRemote(self._proj.remote).fetch.split('/')[-1].split(':')[0]
 
         projLink = self._remoteHttpUrl + '/#/admin/projects/%s' % proj.name
+        branchLink = self._remoteHttpUrl + '/#/q/status:open+project:%s+branch:%s' % (proj.name, proj.branch)
 
         self.write('<hr/><br/>')
         self.write('<table>')
 
         self.write('<tr>')
-
         self.write('<th>Project</th>')
-        self.write('<td colspan="2"><a href="%s" target="_blank">%s</a></td></tr>' % (projLink, proj.name))
+        self.write('<td colspan="2"><a href="%s" target="_blank">%s</a></td>' % (projLink, proj.name))
+        self.write('</tr>')
+
+        self.write('<tr>')
+        self.write('<th>Branch</th>')
+        self.write('<td colspan="2"><a href="%s" target="_blank">%s</a></td>' % (branchLink, proj.branch))
+        self.write('</tr>')
+        self.write('<tr>')
 
         self.write('<tr><td><br/></td></tr>')
 
     def endProject(self):
         self.write('</table><br/>')
 
-    def addChange(self, number, ps, title):
-        self.write('<tr>')
+    def addChange(self, number, ps, title, cherryPick):
+        if cherryPick:
+            self.write('<tr bgcolor="#dddddd">')
+        else:
+            self.write('<tr>')
 
         changeLink = self._remoteHttpUrl + '/#/c/%d/%d' % (number, ps)
 
