@@ -6,7 +6,7 @@ from du.drepo.ReleaseNoteWriter import ReleaseNotesHtmlWriter
 from du.utils import Git
 from du.utils.Git import Change
 from du.utils.ShellCommand import ShellCommand
-
+from du.drepo.Manifest import OPT_CLEAN, OPT_RESET
 
 logger = logging.getLogger(__name__.split('.')[-1])
 
@@ -35,8 +35,29 @@ class DRepo:
             logger.debug('initializing repo at %r ..' % repoDir)
             ShellCommand.run('repo init -u ' + self.repoRemotePath, self._manifest.root)
         else:
-            logger.debug('resetting source ..')
-            ShellCommand.run(['repo', 'forall', '-c', 'git reset --hard'], self._manifest.root)
+            cleanProjects = self._manifest.findProjectsWithOpt(OPT_CLEAN)
+            if cleanProjects:
+                logger.debug('cleaning projects (%s)..', ','.join(proj.name for proj in cleanProjects))
+                regex = '^('
+                for proj in cleanProjects:
+                        regex += proj.name + '|'
+                if regex.endswith('|'):
+                    regex = regex[:-1]
+                regex += ')$'
+
+                logger.debug(ShellCommand.run(['repo', 'forall', '-r', regex, '-c', 'git clean -dfx'], self._manifest.root).stdoutStr)
+
+            resetProjects = self._manifest.findProjectsWithOpt(OPT_RESET)
+            if resetProjects:
+                logger.debug('resetting projects (%s)..', ','.join(proj.name for proj in resetProjects))
+                regex = '^('
+                for proj in resetProjects:
+                        regex += proj.name + '|'
+                if regex.endswith('|'):
+                    regex = regex[:-1]
+                regex += ')$'
+
+                logger.debug(ShellCommand.run(['repo', 'forall', '-r', regex, '-c', 'git reset --hard'], self._manifest.root).stdoutStr)
 
         logger.debug('synchronizing ..')
         ShellCommand.run('repo sync -j8', self._manifest.root)

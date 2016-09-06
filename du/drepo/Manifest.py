@@ -4,7 +4,9 @@ from du.utils.Git import Change
 
 
 Remote = namedtuple('Remote', 'name, fetch')
-Project = namedtuple('Project', 'name, remote, path, branch, cherry_picks, url')
+Project = namedtuple('Project', 'name, remote, path, branch, cherry_picks, url, opts')
+
+OPT_CLEAN, OPT_RESET = range(2)
 
 class Manifest:
     PROJECTS_VAR_NAME = 'projects'
@@ -14,11 +16,15 @@ class Manifest:
     PROJECT_PATH_KEY = 'path'
     PROJECT_BRANCH_KEY = 'branch'
     PROJECT_CHERRY_PICKS_KEY = 'cherry-picks'
+    PROJECT_OPTS_KEY = 'opts'
 
     ROOT_VAR_NAME = 'root'
 
     def __init__(self, code):
-        self._locals = {}
+        self._locals = {
+            'OPT_CLEAN' : OPT_CLEAN,
+            'OPT_RESET' : OPT_RESET,
+        }
 
         exec(code, self._locals)
 
@@ -28,7 +34,6 @@ class Manifest:
             remote = Remote(name, fetch)
             self._remotes.append(remote)
 
-
         # Parse projects
         self._projects = []
         for name, desc in self._locals[self.PROJECTS_VAR_NAME].iteritems():
@@ -36,7 +41,7 @@ class Manifest:
             path = desc[self.PROJECT_PATH_KEY]
             branch = desc[self.PROJECT_BRANCH_KEY]
 
-            cherry_picks = desc[self.PROJECT_CHERRY_PICKS_KEY]
+            cherry_picks = desc[self.PROJECT_CHERRY_PICKS_KEY] if self.PROJECT_CHERRY_PICKS_KEY in desc else []
 
             tmp = []
             for i in cherry_picks:
@@ -54,12 +59,20 @@ class Manifest:
 
             url = self.getRemote(remote).fetch + '/' + name
 
+            opts = desc[self.PROJECT_OPTS_KEY] if self.PROJECT_OPTS_KEY in desc else []
 
-            proj = Project(name, remote, path, branch, cherry_picks, url)
+            proj = Project(name, remote, path, branch, cherry_picks, url, opts)
 
             self._projects.append(proj)
 
         self._root = self._locals[self.ROOT_VAR_NAME]
+
+    def findProjectsWithOpt(self, opt):
+        projects = []
+        for proj in self._projects:
+            if opt in proj.opts:
+                projects.append(proj)
+        return projects
 
     def getRemote(self, name):
         for i in self._remotes:
