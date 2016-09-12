@@ -13,11 +13,13 @@ TYPE_CUSTOM = range(5)
 
 APK_TYPE_KEY = 'type'
 APK_TYPE_SYSTEM = 'system'
+APK_TYPE_SYSTEM_PRIV = 'system-priv'
 APK_TYPE_USER = 'user'
 
 LIB_DEST_DIR = '/system/lib'
 BIN_DEST_DIR = '/system/bin'
 APP_DEST_DIR = '/system/app'
+PRIV_APP_DEST_DIR = '/system/priv-app'
 
 logger = logging.getLogger(__name__.split('.')[-1])
 
@@ -38,7 +40,11 @@ class AndroidArtifactInstaller(ArtifactInstaller):
             return self.getBinPath(artifact.source, self._symbols)
 
         elif artifact.type == TYPE_APK:
-            return self.getAPKPath(artifact.source)
+            apkType = artifact.opts[APK_TYPE_KEY]
+
+            path = self.appDir if apkType in [APK_TYPE_SYSTEM, APK_TYPE_USER] else self.privAppDir
+
+            return os.path.join(path, os.path.splitext(artifact.source)[0], artifact.source)
 
         elif artifact.type == TYPE_CUSTOM:
             return os.path.join(self.outDir, artifact.source)
@@ -54,7 +60,11 @@ class AndroidArtifactInstaller(ArtifactInstaller):
             return os.path.join(BIN_DEST_DIR, artifact.source)
 
         elif artifact.type == TYPE_APK:
-            return os.path.join(APP_DEST_DIR, artifact.source)
+            apkType = artifact.opts[APK_TYPE_KEY]
+
+            path = APP_DEST_DIR if apkType in [APK_TYPE_SYSTEM, APK_TYPE_USER] else PRIV_APP_DEST_DIR
+
+            return os.path.join(path, artifact.source)
 
         elif artifact.type == TYPE_CUSTOM:
             return artifact.destination
@@ -75,8 +85,10 @@ class AndroidArtifactInstaller(ArtifactInstaller):
 
             apkType = artifact.opts[APK_TYPE_KEY]
 
-            if apkType == APK_TYPE_SYSTEM:
-                return self._push(sourcePath, os.path.join('/system/app', os.path.splitext(artifact.source)[0] + "/"))
+            if apkType in [APK_TYPE_SYSTEM, APK_TYPE_SYSTEM_PRIV]:
+                path = APP_DEST_DIR if apkType in [APK_TYPE_SYSTEM, APK_TYPE_USER] else PRIV_APP_DEST_DIR
+
+                return self._push(sourcePath, os.path.join(path, os.path.splitext(artifact.source)[0] + "/"))
             elif apkType == APK_TYPE_USER:
                 logger.debug('Installing: %r' % os.path.basename(sourcePath))
 
@@ -117,6 +129,10 @@ class AndroidArtifactInstaller(ArtifactInstaller):
         return os.path.join(self.outDir, "system/app")
 
     @property
+    def privAppDir(self):
+        return os.path.join(self.outDir, "system/priv-app")
+
+    @property
     def outDir(self):
         return os.path.join(self._androidRoot, 'out/target/product/' + self._productName)
 
@@ -131,9 +147,6 @@ class AndroidArtifactInstaller(ArtifactInstaller):
 
     def getBinPath(self, name, symbols):
         return os.path.join(self.getBinDir(symbols), name)
-
-    def getAPKPath(self, name):
-        return os.path.join(self.appDir, os.path.splitext(name)[0], name)
 
     def isDeviceOnline(self):
         magic = 42
