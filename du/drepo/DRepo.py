@@ -109,7 +109,7 @@ class DRepo:
 
         historyLength = 15
 
-        writer.start()
+        writer.start(manifest)
 
         for proj in manifest.projects:
             logger.debug('for %s ..' % proj.name)

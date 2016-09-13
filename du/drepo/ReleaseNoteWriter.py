@@ -2,7 +2,7 @@ class ReleaseNotesWriterBase:
     def __init__(self):
         self._notes = ''
 
-    def start(self):
+    def start(self, manifest):
         raise NotImplementedError()
 
     def startProject(self, proj):
@@ -28,7 +28,7 @@ class ReleaseNotesTextWriter(ReleaseNotesWriterBase):
     def __init__(self):
         ReleaseNotesWriterBase.__init__(self)
 
-    def start(self):
+    def start(self, manifest):
         pass
 
     def startProject(self, proj):
@@ -44,12 +44,39 @@ class ReleaseNotesTextWriter(ReleaseNotesWriterBase):
         pass
 
 class ReleaseNotesHtmlWriter(ReleaseNotesWriterBase):
+    DEFAULT_TITLE = 'Release Notes'
+
     def __init__(self, manifest):
         ReleaseNotesWriterBase.__init__(self)
         self._manifest = manifest
 
-    def start(self):
-        self.write('<html><body>')
+    def start(self, manifest):
+        self.write('<html><head>')
+
+        self.write('<title>%s</title>' % self.DEFAULT_TITLE)
+
+        self.write('<style>')
+        self.write('font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;')
+        self.write('font-style: normal;')
+        self.write('font-variant: normal;')
+
+        self.write('</style>')
+
+        self.write('</head><body>')
+
+        self.write('<hr/>')
+
+        self.write('<table>')
+        for idx, proj in enumerate(manifest.projects):
+
+            self.write('<tr>')
+            self.write('<td>%d.</td>' % (idx + 1))
+            self.write('<td><a href="#%s">%s</a></td>' % (proj.name, proj.name))
+            self.write('</tr>')
+
+        self.write('</table>')
+
+
 
     def startProject(self, proj):
         self._proj = proj
@@ -59,27 +86,20 @@ class ReleaseNotesHtmlWriter(ReleaseNotesWriterBase):
         branchLink = self._remoteHttpUrl + '/#/q/status:open+project:%s+branch:%s' % (proj.name, proj.branch)
 
         self.write('<hr/><br/>')
+
+        self.write('<h3>')
+        self.write('<a name="%s" href="%s" target="_blank">%s</a>' % (proj.name, projLink, proj.name))
+        self.write(' ( <a href="%s" target="_blank">%s</a> )' % (branchLink, proj.branch))
+        self.write('</h3>')
+
         self.write('<table>')
-
-        self.write('<tr>')
-        self.write('<th>Project</th>')
-        self.write('<td colspan="2"><a href="%s" target="_blank">%s</a></td>' % (projLink, proj.name))
-        self.write('</tr>')
-
-        self.write('<tr>')
-        self.write('<th>Branch</th>')
-        self.write('<td colspan="2"><a href="%s" target="_blank">%s</a></td>' % (branchLink, proj.branch))
-        self.write('</tr>')
-        self.write('<tr>')
-
-        self.write('<tr><td><br/></td></tr>')
 
     def endProject(self):
         self.write('</table><br/>')
 
     def addChange(self, number, ps, title, cherryPick):
         if cherryPick:
-            self.write('<tr bgcolor="#dddddd">')
+            self.write('<tr bgcolor="#FFC3CE">')
         else:
             self.write('<tr>')
 
