@@ -3,8 +3,8 @@ import logging
 import sys
 import traceback
 
-from du.android.smartpush import ArtifactManifest
 from du.android.smartpush.AndroidArtifactInstaller import AndroidArtifactInstaller
+from du.android.smartpush.ArtifactManifest import ArtifactManifest
 
 
 logger = logging.getLogger(__name__)
