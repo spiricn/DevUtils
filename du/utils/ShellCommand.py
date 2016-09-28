@@ -23,7 +23,7 @@ class ShellCommand:
 
     @staticmethod
     def run(command, cwd=None):
-        cmd = ShellCommand(command, cwd, commandOutput=False, raiseOnError=True)
+        cmd = ShellCommand(command, cwd, commandOutput=True, raiseOnError=True)
         cmd.start()
         return cmd
 

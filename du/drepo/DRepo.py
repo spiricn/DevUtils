@@ -33,7 +33,7 @@ class DRepo:
         repoDir = os.path.join(self._manifest.root, self.REPO_NAME)
         if not os.path.exists(repoDir):
             logger.debug('initializing repo at %r ..' % repoDir)
-            ShellCommand.run('repo init -u ' + self.repoRemotePath, self._manifest.root)
+            ShellCommand.run(('repo',  'init', '-u', self.repoRemotePath, '--no-clone-bundle'), self._manifest.root)
         else:
             cleanProjects = self._manifest.findProjectsWithOpt(OPT_CLEAN)
             if cleanProjects:
