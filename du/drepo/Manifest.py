@@ -1,25 +1,29 @@
 from collections import namedtuple
+import logging
 
 from du.utils.Git import Change
 
 
 Remote = namedtuple('Remote', 'name, fetch')
-Project = namedtuple('Project', 'name, remote, path, branch, cherry_picks, url, opts')
+Project = namedtuple('Project', 'name, remote, path, branch, url, opts')
+Build = namedtuple('Build', 'name, root, cherrypicks')
 
 OPT_CLEAN, OPT_RESET = range(2)
 
+PROJECTS_VAR_NAME = 'projects'
+REMOTES_VAR_NAME = 'remotes'
+PROJECT_REMOTE_KEY = 'remote'
+PROJECT_PATH_KEY = 'path'
+PROJECT_BRANCH_KEY = 'branch'
+CHERRY_PICKS_KEY = 'cherrypicks'
+PROJECT_OPTS_KEY = 'opts'
+BUILDS_VAR_NAME = 'builds'
+BUILD_VAR_NAME = 'build'
+ROOT_VAR_NAME = 'root'
+
+logger = logging.getLogger(__name__.split('.')[-1])
+
 class Manifest:
-    PROJECTS_VAR_NAME = 'projects'
-    REMOTES_VAR_NAME = 'remotes'
-
-    PROJECT_REMOTE_KEY = 'remote'
-    PROJECT_PATH_KEY = 'path'
-    PROJECT_BRANCH_KEY = 'branch'
-    PROJECT_CHERRY_PICKS_KEY = 'cherry-picks'
-    PROJECT_OPTS_KEY = 'opts'
-
-    ROOT_VAR_NAME = 'root'
-
     def __init__(self, code):
         self._locals = {
             'OPT_CLEAN' : OPT_CLEAN,
@@ -28,44 +32,77 @@ class Manifest:
 
         exec(code, self._locals)
 
+        self._builds = []
+
+        self._build = None
+
+        buildName = self.get(BUILD_VAR_NAME)
+
+        for name, desc in self.get(BUILDS_VAR_NAME).iteritems():
+            root = desc[ROOT_VAR_NAME]
+            cherrypicks = desc[CHERRY_PICKS_KEY]
+
+
+            for proj, changes in cherrypicks.iteritems():
+                tmp = []
+                for i in changes:
+                    if isinstance(i, int):
+                        change = Change(i, None)
+                    else:
+                        if '/' in i:
+                            number, ps = i.split('/')
+                            change = Change(int(number), int(ps))
+                        else:
+                            change = Change(int(i), None)
+                    tmp.append(change)
+
+                cherrypicks[proj] = tmp
+
+            build = Build(name, root, cherrypicks)
+
+            if name == buildName:
+                self._build = build
+
+            logger.debug('Adding build: %r' % str(build))
+
+            self._builds.append(build)
+
+        if not self._build:
+            raise RuntimeError('Could not find active build %r in %s var' % (buildName, BUILDS_VAR_NAME))
+
+        logger.debug('Selecting build: %r' % str(self._build))
+
         # Parse remotes
         self._remotes = []
-        for name, fetch in self._locals[self.REMOTES_VAR_NAME].iteritems():
+        for name, fetch in self.get(REMOTES_VAR_NAME).iteritems():
             remote = Remote(name, fetch)
             self._remotes.append(remote)
+            logger.debug('Adding remote: %r' % str(remote))
 
         # Parse projects
         self._projects = []
-        for name, desc in self._locals[self.PROJECTS_VAR_NAME].iteritems():
-            remote = desc[self.PROJECT_REMOTE_KEY]
-            path = desc[self.PROJECT_PATH_KEY]
-            branch = desc[self.PROJECT_BRANCH_KEY]
-
-            cherry_picks = desc[self.PROJECT_CHERRY_PICKS_KEY] if self.PROJECT_CHERRY_PICKS_KEY in desc else []
-
-            tmp = []
-            for i in cherry_picks:
-                if isinstance(i, int):
-                    change = Change(i, None)
-                else:
-                    if '/' in i:
-                        number, ps = i.split('/')
-                        change = Change(int(number), int(ps))
-                    else:
-                        change = Change(int(i), None)
-                tmp.append(change)
-
-            cherry_picks = tmp
+        for name, desc in self.get(PROJECTS_VAR_NAME).iteritems():
+            remote = desc[PROJECT_REMOTE_KEY]
+            path = desc[PROJECT_PATH_KEY]
+            branch = desc[PROJECT_BRANCH_KEY]
 
             url = self.getRemote(remote).fetch + '/' + name
 
-            opts = desc[self.PROJECT_OPTS_KEY] if self.PROJECT_OPTS_KEY in desc else []
+            opts = desc[PROJECT_OPTS_KEY] if PROJECT_OPTS_KEY in desc else []
 
-            proj = Project(name, remote, path, branch, cherry_picks, url, opts)
+            proj = Project(name, remote, path, branch, url, opts)
 
+            logger.debug('Adding project: %r' % str(proj))
             self._projects.append(proj)
 
-        self._root = self._locals[self.ROOT_VAR_NAME]
+    def get(self, name):
+        if name in self._locals:
+            return self._locals[name]
+        else:
+            raise RuntimeError('Required var %r missing from manifest' % name)
+
+    def getCherrypicks(self, proj):
+        return self._build.cherrypicks[proj.name]
 
     def findProjectsWithOpt(self, opt):
         projects = []
@@ -86,10 +123,13 @@ class Manifest:
                 return i
         return None
 
-
     @property
     def projects(self):
         return self._projects
+
+    @property
+    def builds(self):
+        return self._builds
 
     @property
     def remotes(self):
@@ -97,7 +137,11 @@ class Manifest:
 
     @property
     def root(self):
-        return self._root
+        return self._build.root
+
+    @property
+    def build(self):
+        return self._build
 
     @property
     def repoManifestXml(self):

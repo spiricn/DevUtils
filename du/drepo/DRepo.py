@@ -33,7 +33,7 @@ class DRepo:
         repoDir = os.path.join(self._manifest.root, self.REPO_NAME)
         if not os.path.exists(repoDir):
             logger.debug('initializing repo at %r ..' % repoDir)
-            ShellCommand.run(('repo',  'init', '-u', self.repoRemotePath, '--no-clone-bundle'), self._manifest.root)
+            ShellCommand.run(('repo', 'init', '-u', self.repoRemotePath, '--no-clone-bundle'), self._manifest.root)
         else:
             cleanProjects = self._manifest.findProjectsWithOpt(OPT_CLEAN)
             if cleanProjects:
@@ -87,14 +87,18 @@ class DRepo:
 
     def _applyCherryPicks(self):
         for proj in self._manifest.projects:
-            if not proj.cherry_picks:
+            projCherrypicks = self._manifest.getCherrypicks(proj)
+
+            logger.debug('%r cherrypicks: %r' % (proj.name, str(projCherrypicks)))
+
+            if not projCherrypicks:
                 continue
 
             logger.debug('for %s ..' % proj.name)
 
             remotes = Git.lsRemote(proj.url)
 
-            for change in proj.cherry_picks:
+            for change in projCherrypicks:
                 if change.ps == None:
                     ps = Git.getLatestPatchset(proj.url, change.number, remotes)
                     change = Change(change.number, ps)
@@ -123,7 +127,7 @@ class DRepo:
 
             cherryPickHashes = []
 
-            for change in reversed(proj.cherry_picks):
+            for change in reversed(manifest.getCherrypicks(proj)):
                 commitHash = Git.getChangeHash(proj.url, change, remotes)
                 assert(commitHash != None)
 
