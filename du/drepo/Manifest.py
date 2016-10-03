@@ -1,12 +1,29 @@
-from collections import namedtuple
 import logging
 
 from du.utils.Git import Change
 
 
-Remote = namedtuple('Remote', 'name, fetch')
-Project = namedtuple('Project', 'name, remote, path, branch, url, opts')
-Build = namedtuple('Build', 'name, root, cherrypicks')
+class Remote:
+    def __init__(self, name, fetch):
+        self.name = name
+        self.fetch = fetch
+
+
+class Project:
+    def __init__(self, name, remote, path, branch, url, opts):
+        self.name = name
+        self.remote = remote
+        self.path = path
+        self.branch = branch
+        self.url = url
+        self.opts = opts
+
+class Build:
+    def __init__(self, name, root, cherrypicks):
+        self.name = name
+        self.root = root
+        self.cherrypicks = cherrypicks
+
 
 OPT_CLEAN, OPT_RESET = range(2)
 

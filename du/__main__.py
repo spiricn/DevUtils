@@ -1,17 +1,19 @@
-import argparse
 import sys
 
+import du
+from du.android.smartpush.AndroidArtifactTool import main as artifactMain
 from du.android.smartpush.AndroidSmartPushApp import main as smartpushMain
 from du.drepo.App import main as drepoMain
 from du.drepo.indexer.App import main as indexerMain
-from du.android.smartpush.AndroidArtifactTool import main as artifactMain
+
 
 def main():
     apps = {
         'drepo' : drepoMain,
         'sp' : smartpushMain,
         'drepo-index' : indexerMain,
-        'artifact' : artifactMain
+        'artifact' : artifactMain,
+        'version' : lambda: sys.stdout.write(du.__version__ + '\n')
     }
 
     if len(sys.argv) < 2:

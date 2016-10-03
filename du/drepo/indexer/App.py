@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 import sys
 import traceback
@@ -8,6 +9,8 @@ from du.drepo.Manifest import Manifest
 from du.drepo.indexer.JenkinsManifestExtractor import extractManifest, \
     processVars
 from du.utils.ShellCommand import ShellCommand
+
+logger = logging.getLogger(__name__.split('.')[-1])
 
 def syncSource(manifest):
     manifest = Manifest(manifest)
@@ -23,6 +26,9 @@ def indexSource(grok, grokRoot):
     ShellCommand.run(['sudo', grok, 'index', grokRoot])
 
 def main():
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(levelname)s/%(name)s: %(message)s')
+
     # Parser command line arguments
     parser = argparse.ArgumentParser()
 
@@ -37,14 +43,26 @@ def main():
 
     manifestPath = os.path.join(args.jenkinsJob, 'config.xml')
 
-    manifest = extractManifest(manifestPath, args.paramName)
+    logger.debug('parsing manifest ..')
+    try:
+        manifest = extractManifest(manifestPath, args.paramName)
+        manifest = processVars(manifest, eval(args.vars))
 
-    manifest = processVars(manifest, eval(args.vars))
+        if args.sync:
+            logger.debug('syncing sources ..')
+            syncSource(manifest)
 
-    if args.sync:
-        syncSource(manifest)
+        logger.debug('indexing ..')
+        indexSource(args.grok, args.grokRoot)
+    except:
+        traceback.print_exc(file=sys.stdout)
+        logger.error('-----------------------------------')
+        logger.error('indexing failed')
+        return -1
 
-    indexSource(args.grok, args.grokRoot)
+
+    logger.debug('-------------------------------')
+    logger.debug('done')
 
     return 0
 

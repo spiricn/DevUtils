@@ -3,6 +3,7 @@ import os
 import subprocess
 import tarfile
 
+
 CommandRes = namedtuple('CommandRes', 'stdout, stderr, rc')
 
 def getFileTimestamp(path):
