@@ -36,28 +36,16 @@ class DRepo:
             ShellCommand.run(('repo', 'init', '-u', self.repoRemotePath, '--no-clone-bundle'), self._manifest.root)
         else:
             cleanProjects = self._manifest.findProjectsWithOpt(OPT_CLEAN)
-            if cleanProjects:
-                logger.debug('cleaning projects (%s)..', ','.join(proj.name for proj in cleanProjects))
-                regex = '^('
-                for proj in cleanProjects:
-                        regex += proj.name + '|'
-                if regex.endswith('|'):
-                    regex = regex[:-1]
-                regex += ')$'
+            for proj in cleanProjects:
+                logger.debug('cleaning project %s' % proj.name)
 
-                logger.debug(ShellCommand.run(['repo', 'forall', '-r', regex, '-c', 'git clean -dfx'], self._manifest.root).stdoutStr)
+                ShellCommand.run('git clean -dfx', os.path.join(self._manifest.root, proj.path))
 
             resetProjects = self._manifest.findProjectsWithOpt(OPT_RESET)
-            if resetProjects:
-                logger.debug('resetting projects (%s)..', ','.join(proj.name for proj in resetProjects))
-                regex = '^('
-                for proj in resetProjects:
-                        regex += proj.name + '|'
-                if regex.endswith('|'):
-                    regex = regex[:-1]
-                regex += ')$'
+            for proj in resetProjects:
+                logger.debug('resetting project %s' % proj.name)
 
-                logger.debug(ShellCommand.run(['repo', 'forall', '-r', regex, '-c', 'git reset --hard'], self._manifest.root).stdoutStr)
+                ShellCommand.run(['git', 'reset', '--hard', proj.remote + '/' + proj.branch], os.path.join(self._manifest.root, proj.path))
 
         logger.debug('synchronizing ..')
         ShellCommand.run('repo sync -j8', self._manifest.root)
