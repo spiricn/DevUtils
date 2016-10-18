@@ -38,6 +38,7 @@ def main():
     parser.add_argument('paramName')
     parser.add_argument('vars')
     parser.add_argument('-sync', action='store_true')
+    parser.add_argument('-outManifest')
 
     args = parser.parse_args()
 
@@ -60,6 +61,12 @@ def main():
         logger.error('indexing failed')
         return -1
 
+
+    if args.outManifest:
+        logger.debug('saving manifest to %r' % args.outManifest)
+
+        with open(args.outManifest, 'wb') as fileObj:
+            fileObj.write(manifest)
 
     logger.debug('-------------------------------')
     logger.debug('done')
