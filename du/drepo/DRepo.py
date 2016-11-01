@@ -89,6 +89,10 @@ class DRepo:
             for change in projCherrypicks:
                 if change.ps == None:
                     ps = Git.getLatestPatchset(proj.url, change.number, remotes)
+
+                    if ps == None:
+                        raise RuntimeError('Unable to acquire latest patchset for project %r change %d', proj.url, change.number)
+
                     change = Change(change.number, ps)
 
                 logger.debug('applying %d/%d ..', change.number, change.ps)
