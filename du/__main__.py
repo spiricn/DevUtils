@@ -5,7 +5,7 @@ from du.android.smartpush.AndroidArtifactTool import main as artifactMain
 from du.android.smartpush.AndroidSmartPushApp import main as smartpushMain
 from du.drepo.App import main as drepoMain
 from du.drepo.indexer.App import main as indexerMain
-
+from du.ctee.App import main as cteeMain 
 
 def main():
     apps = {
@@ -13,7 +13,8 @@ def main():
         'sp' : smartpushMain,
         'drepo-index' : indexerMain,
         'artifact' : artifactMain,
-        'version' : lambda: sys.stdout.write(du.__version__ + '\n')
+        'version' : lambda: sys.stdout.write(du.__version__ + '\n'),
+        'ctee' : cteeMain,
     }
 
     if len(sys.argv) < 2:
