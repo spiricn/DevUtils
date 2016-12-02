@@ -6,10 +6,12 @@ from du.ctee.processors.LogcatProcessor import LogcatProcessor
 from du.ctee.transformers.HtmlTransformer import HtmlTransformer
 from du.ctee.transformers.PasstroughTransformer import PasstroughTransformer
 from du.ctee.transformers.TerminalTransformer import TerminalTransformer
+from du.ctee.processors.GccProcessor import GccProcessor
 
 
 PROCESSOR_MAP = {
     'logcat' : LogcatProcessor,
+    'gcc' : GccProcessor
 }
 
 TRANSFORMER_MAP = {
