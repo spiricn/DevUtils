@@ -20,12 +20,22 @@ TRANSFORMER_MAP = {
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('input')
-    parser.add_argument('processor', help='available processors: %s' % ','.join(PROCESSOR_MAP.keys()))
+    parser.add_argument('-stylesheet')
+    parser.add_argument('-input')
+    parser.add_argument('-processor', help='available processors: %s' % ','.join(PROCESSOR_MAP.keys()))
     parser.add_argument('-outputs', nargs='+', help='list of <output,transformer> pairs; available transformers: %s' % (','.join(TRANSFORMER_MAP.keys())))
     
     args = parser.parse_args()
 
+    if args.stylesheet:
+        if args.stylesheet in PROCESSOR_MAP:
+            print( PROCESSOR_MAP[args.stylesheet].getDefaultStylesheet() )
+            return 0
+            
+        else:
+            print('invalid processor name %r' % args.processor)
+            return -1
+    
     ctee = Ctee()
     
     inputStream = None
