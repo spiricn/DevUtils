@@ -5,14 +5,14 @@ from du.ctee.transformers.BaseTransformer import BaseTransformer
 class TerminalTransformer(BaseTransformer):
     CODE_START = '\x1b['
     CODE_CLEAR = CODE_START + '0m'
-    CODE_RED = CODE_START + '31m'
-    CODE_GREEN = CODE_START + '32m'
-    CODE_BLUE = CODE_START + '34m'
-    CODE_YELLOW = CODE_START + '33m'
-    CODE_CYAN  = CODE_START + '36m'
-    CODE_MAGENTA = CODE_START + '35m'
-    CODE_WHITE = CODE_START + '97m'
-    CODE_BLACK = CODE_START + '30m'
+    CODE_RED = CODE_START + '1;31m'
+    CODE_GREEN = CODE_START + '1;32m'
+    CODE_BLUE = CODE_START + '1;34m'
+    CODE_YELLOW = CODE_START + '1;33m'
+    CODE_CYAN  = CODE_START + '1;36m'
+    CODE_MAGENTA = CODE_START + '1;35m'
+    CODE_WHITE = CODE_START + '1;97m'
+    CODE_BLACK = CODE_START + '1;30m'
     
     COLOR_TO_CODE_MAP = {
         Color.RED : CODE_RED,
