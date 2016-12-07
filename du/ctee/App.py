@@ -1,5 +1,6 @@
 import argparse
 import sys
+import signal
 
 from du.ctee.Ctee import Ctee
 from du.ctee.processors.LogcatProcessor import LogcatProcessor
@@ -20,12 +21,16 @@ TRANSFORMER_MAP = {
     'html' : HtmlTransformer
 }
 
+def interruptHandler(signal, frame, ctee):
+    ctee.stop()
+    
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-stylesheet')
     parser.add_argument('-input')
     parser.add_argument('-processor', help='available processors: %s' % ','.join(PROCESSOR_MAP.keys()))
     parser.add_argument('-outputs', nargs='+', help='list of <output,transformer> pairs; available transformers: %s' % (','.join(TRANSFORMER_MAP.keys())))
+    
     
     args = parser.parse_args()
 
@@ -74,6 +79,8 @@ def main():
                 
             ctee.addOutput(outputStream, transformer)
         
+    
+    signal.signal(signal.SIGINT, lambda signal, frame: interruptHandler(signal, frame, ctee))
     
     ctee.start()
     
