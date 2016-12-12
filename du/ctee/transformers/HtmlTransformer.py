@@ -1,6 +1,5 @@
 from du.ctee.Color import Color
 from du.ctee.transformers.BaseTransformer import BaseTransformer
-from reportlab.lib.colors import cssParse
 
 
 class HtmlTransformer(BaseTransformer):
@@ -14,12 +13,12 @@ class HtmlTransformer(BaseTransformer):
         Color.WHITE : 'white',
         Color.BLACK : 'black',
     }
-    
+
     def __init__(self):
         BaseTransformer.__init__(self)
-        
+
     def getHeader(self):
-        
+
         css = '''\
 body {
     background-color:black
@@ -35,25 +34,25 @@ p {
 
 '''
         res = ''
-        
-        
+
+
         res += '<html><head>'
-        
+
         res += '<style>'
-        
+
         res += css
-        
+
         res += '</style></head>'
 
         return res
-        
-    
+
+
     def transform(self, line, style):
         clr = self.COLOR_TO_STYLE_MAP[style.color] if style else 'white'
-        
-        style="color:%s;" % clr 
-        
-        return '<p style="%s">%s</p><br/>' % (style, line)
-    
+
+        style = "color:%s;" % clr
+
+        return '<p style="%s">%s</p>' % (style, line)
+
     def getTrailer(self):
         return '</body></html>'

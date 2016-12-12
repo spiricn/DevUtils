@@ -1,5 +1,5 @@
 from collections import namedtuple
-from threading import Thread
+from threading import Thread, Semaphore
 import time
 
 
@@ -12,6 +12,7 @@ class Ctee:
         self._outputs = []
         self._thread = None
         self._running = False
+        self._sema = Semaphore(0)
 
     def setInput(self, stream, processor):
         if self._running:
@@ -35,17 +36,14 @@ class Ctee:
 
     def stop(self):
         if not self._running:
-            raise RuntimeError('Ctee not running')
-
-        self._running = False
+            return
 
         self._input.stream.close()
-
         self._thread.join()
 
     def wait(self):
         while self._running:
-            time.sleep(0.5)
+            self._sema.acquire()
 
     def _mainLoop(self):
         for output in self._outputs:
@@ -54,6 +52,9 @@ class Ctee:
 
         while self._running:
             line = self._input.stream.readline()
+            if not line:
+                break
+
             style = self._input.processor.getStyle(line)
 
             for output in self._outputs:
@@ -64,3 +65,5 @@ class Ctee:
             output.stream.write(output.transformer.getTrailer())
             output.stream.flush()
 
+        self._running = False
+        self._sema.release()
