@@ -18,7 +18,6 @@ class HtmlTransformer(BaseTransformer):
         BaseTransformer.__init__(self)
 
     def getHeader(self):
-
         css = '''\
 body {
     background-color:black
@@ -31,7 +30,6 @@ p {
     font-family: monospace;
     font-weight: bold;
 }
-
 '''
         res = ''
 
@@ -39,23 +37,26 @@ p {
         res += '<html><head>'
 
         res += '<style>'
-
         res += css
-
         res += '</style></head>'
 
         return res
 
 
     def transform(self, line, style):
-        clr = 'white'
+        color = 'white'
+        background = 'black'
 
-        if style.fgColor in self.COLOR_TO_STYLE_MAP and style:
-            clr = self.COLOR_TO_STYLE_MAP[style.fgColor]
+        if style:
+            if style.fgColor in self.COLOR_TO_STYLE_MAP:
+                color = self.COLOR_TO_STYLE_MAP[style.fgColor]
 
-        style = "color:%s;" % clr
+            if style.bgColor in self.COLOR_TO_STYLE_MAP:
+                background = self.COLOR_TO_STYLE_MAP[style.bgColor]
 
-        return '<p style="%s">%s</p>' % (style, line)
+        css = 'color:%s; background-color:%s' % (color, background)
+
+        return '<p style="%s">%s</p>' % (css, line)
 
     def getTrailer(self):
         return '</body></html>'
