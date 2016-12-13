@@ -9,12 +9,12 @@ class LogcatProcessor(BaseProcessor):
     def getDefaultStylesheet():
         return '''\
 {
-'verbose' : Style(Color.WHITE),
-'error' : Style(Color.RED),
-'debug' : Style(Color.CYAN),
-'warning' : Style(Color.YELLOW),
-'fatal' : Style(Color.RED),
-'info' : Style(Color.GREEN),
+'verbose' : Style(fgColor=Color.WHITE, bold=True),
+'error' : Style(fgColor=Color.RED, bold=True),
+'debug' : Style(fgColor=Color.CYAN, bold=True),
+'warning' : Style(fgColor=Color.YELLOW, bold=True),
+'fatal' : Style(fgColor=Color.RED, bold=True),
+'info' : Style(fgColor=Color.GREEN, bold=True),
 }
 '''
 

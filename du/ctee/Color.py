@@ -6,7 +6,8 @@ class Color:
     CYAN, \
     MAGENTA, \
     WHITE, \
-    BLACK = range(8)
+    BLACK, \
+    UNSPECIFIED = range(9)
 
     def __init__(self, r, g, b):
         self.r = r
