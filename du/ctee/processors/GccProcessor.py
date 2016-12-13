@@ -9,9 +9,10 @@ class GccProcessor(BaseProcessor):
     def getDefaultStylesheet():
         return '''\
 {
-'error' : Style(Color.RED),
-'warning' : Style(Color.YELLOW),
-'info' : Style(Color.CYAN),
+'error' : Style(Color.RED, bold=True),
+'warning' : Style(Color.YELLOW, bold=True),
+'info' : Style(Color.CYAN, bold=True),
+'important' : Style(fgColor=Color.WHITE, bgColor=Color.BLUE, bold=True, underline=True),
 }'''
 
     def getStyle(self, line):
@@ -31,18 +32,29 @@ class GccProcessor(BaseProcessor):
             'In function',
             ': first defined here',
             'make: Entering directory',
-            'Install: ',
-            'target StaticLib: '
+            'make: Leaving directory'
         ]
 
         warningStrings = [
             'warning:',
         ]
 
+        importantStrings = [
+            # .so, .apk
+            'Install: ',
+            # .a
+            'target StaticLib: ',
+            # .jack
+            'Building with Jack: ',
+            # .jar
+            'target Static Jar: '
+        ]
+
         data = (
             (self.stylesheet['error'], errorStrings),
             (self.stylesheet['info'], infoStrings),
             (self.stylesheet['warning'], warningStrings),
+            (self.stylesheet['important'], importantStrings),
         )
 
         for style, strings in data:
