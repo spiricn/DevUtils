@@ -48,7 +48,10 @@ p {
 
 
     def transform(self, line, style):
-        clr = self.COLOR_TO_STYLE_MAP[style.fgColor] if style else 'white'
+        clr = 'white'
+
+        if style.fgColor in self.COLOR_TO_STYLE_MAP and style:
+            clr = self.COLOR_TO_STYLE_MAP[style.fgColor]
 
         style = "color:%s;" % clr
 
