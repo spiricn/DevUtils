@@ -5,7 +5,7 @@ from du.android.smartpush.AndroidArtifactTool import main as artifactMain
 from du.android.smartpush.AndroidSmartPushApp import main as smartpushMain
 from du.drepo.App import main as drepoMain
 from du.drepo.indexer.App import main as indexerMain
-from du.ctee.App import main as cteeMain 
+from du.ctee.App import main as cteeMain
 
 def main():
     apps = {

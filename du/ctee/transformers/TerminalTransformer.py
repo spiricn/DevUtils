@@ -9,11 +9,11 @@ class TerminalTransformer(BaseTransformer):
     CODE_GREEN = CODE_START + '1;32m'
     CODE_BLUE = CODE_START + '1;34m'
     CODE_YELLOW = CODE_START + '1;33m'
-    CODE_CYAN  = CODE_START + '1;36m'
+    CODE_CYAN = CODE_START + '1;36m'
     CODE_MAGENTA = CODE_START + '1;35m'
     CODE_WHITE = CODE_START + '1;97m'
     CODE_BLACK = CODE_START + '1;30m'
-    
+
     COLOR_TO_CODE_MAP = {
         Color.RED : CODE_RED,
         Color.GREEN : CODE_GREEN,
@@ -24,12 +24,12 @@ class TerminalTransformer(BaseTransformer):
         Color.WHITE : CODE_WHITE,
         Color.BLACK : CODE_BLACK,
     }
-    
+
     def __init__(self):
         BaseTransformer.__init__(self)
-        
+
     def transform(self, line, style):
         if not style:
             return line
         else:
-            return self.COLOR_TO_CODE_MAP[style.color] + line  + self.CODE_CLEAR
+            return self.COLOR_TO_CODE_MAP[style.color] + line + self.CODE_CLEAR

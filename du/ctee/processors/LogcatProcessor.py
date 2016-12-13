@@ -4,7 +4,7 @@ from du.ctee.processors.BaseProcessor import BaseProcessor
 class LogcatProcessor(BaseProcessor):
     def __init__(self, stylesheet=None):
         BaseProcessor.__init__(self, stylesheet)
-        
+
     @staticmethod
     def getDefaultStylesheet():
         return '''\
@@ -17,7 +17,7 @@ class LogcatProcessor(BaseProcessor):
 'info' : Style(Color.GREEN),
 }
 '''
-        
+
     def getStyle(self, line):
         if 'V/' in line:
             return self.stylesheet['verbose']
@@ -31,5 +31,5 @@ class LogcatProcessor(BaseProcessor):
             return self.stylesheet['fatal']
         elif 'I/' in line:
             return self.stylesheet['info']
-        
+
         return None

@@ -32,10 +32,10 @@ class GooglePythonADB(object):
 
     def push(self, source, dest, timeoutMs=DEFAULT_COMMAND_TIMEOUT_MS):
         self._impl.Push(source, dest, timeout_ms=timeoutMs)
-        
+
     def root(self, timeoutMs=DEFAULT_COMMAND_TIMEOUT_MS):
         self._impl.Root()
-    
+
     def remount(self, timeoutMs=DEFAULT_COMMAND_TIMEOUT_MS):
         self._impl.Remount()
-        
+

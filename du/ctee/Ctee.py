@@ -1,6 +1,5 @@
 from collections import namedtuple
 from threading import Thread, Semaphore
-import time
 
 
 class Ctee:
