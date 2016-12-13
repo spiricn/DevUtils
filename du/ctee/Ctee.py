@@ -54,10 +54,12 @@ class Ctee:
             if not line:
                 break
 
+            line = line.rstrip()
+
             style = self._input.processor.getStyle(line)
 
             for output in self._outputs:
-                output.stream.write(output.transformer.transform(line, style))
+                output.stream.write(output.transformer.transform(line, style) + '\n')
                 output.stream.flush()
 
         for output in self._outputs:
