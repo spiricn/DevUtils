@@ -26,7 +26,8 @@ du_make() {
 }
 
 main() {
-    export DU_APP=/usr/bin/du_app
+    export -f du_make
+    export -f du_logcat
 
     return 0
 }
