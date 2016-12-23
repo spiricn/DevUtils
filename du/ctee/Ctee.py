@@ -56,11 +56,18 @@ class Ctee:
 
             line = line.rstrip()
 
-            style = self._input.processor.getStyle(line)
+            chunks = self._input.processor.getStyle(line)
+
+            output.stream.write(output.transformer.onLineStart())
 
             for output in self._outputs:
-                output.stream.write(output.transformer.transform(line, style) + '\n')
+                for chunk, style in chunks:
+                    output.stream.write(output.transformer.transform(chunk, style).encode('utf-8'))
+                output.stream.write('\n')
                 output.stream.flush()
+
+            output.stream.write(output.transformer.onLineEnd())
+
 
         for output in self._outputs:
             output.stream.write(output.transformer.getTrailer())

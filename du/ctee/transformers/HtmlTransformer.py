@@ -42,6 +42,11 @@ p {
 
         return res
 
+    def onLineStart(self):
+        return '<p>'
+
+    def onLineEnd(self):
+        return '</p>'
 
     def transform(self, line, style):
         color = 'white'
@@ -56,7 +61,7 @@ p {
 
         css = 'color:%s; background-color:%s' % (color, background)
 
-        return '<p style="%s">%s</p>' % (css, line)
+        return '<span style="%s">%s</span>' % (css, line)
 
     def getTrailer(self):
         return '</body></html>'

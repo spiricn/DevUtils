@@ -60,6 +60,6 @@ class GccProcessor(BaseProcessor):
         for style, strings in data:
             for i in strings:
                 if i in line:
-                    return style
+                    return ((line, style),)
 
         return None

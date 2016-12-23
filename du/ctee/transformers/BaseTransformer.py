@@ -10,3 +10,9 @@ class BaseTransformer:
 
     def transform(self, line, style):
         raise RuntimeError('Not implemented')
+
+    def onLineStart(self):
+        return ''
+
+    def onLineEnd(self):
+        return ''
