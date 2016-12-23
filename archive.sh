@@ -17,7 +17,7 @@ main() {
 
     popd
 
-    echo '#!/usr/bin/env python' | cat - $archive > $app_name
+    echo '#!/usr/bin/env python2' | cat - $archive > $app_name
 
     chmod a+x $app_name
 
