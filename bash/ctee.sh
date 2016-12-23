@@ -14,7 +14,7 @@ du_logcat() {
 }
 
 du_make() {
-    # Make input from stdin, output to colroed terminal, plain text and html
+    # Make input from stdin, output to colored terminal, plain text and html
     make $@ | $DU_APP ctee \
         -input - \
         -processor gcc \
@@ -24,7 +24,6 @@ du_make() {
             ~/du_build.html html
     return $?
 }
-
 
 main() {
     export DU_APP=/usr/bin/du_app
