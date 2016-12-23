@@ -12,6 +12,19 @@ LOGCAT_LEVEL_WARNING, \
 LOGCAT_LEVEL_ERROR, \
 LOGCAT_LEVEL_FATAL = range(6)
 
+LOGCAT_LEVEL_MAP = {
+    'V' : LOGCAT_LEVEL_VERBOSE,
+    'D' : LOGCAT_LEVEL_DEBUG,
+    'I' : LOGCAT_LEVEL_INFO,
+    'W' : LOGCAT_LEVEL_WARNING,
+    'E' : LOGCAT_LEVEL_ERROR,
+    'F' : LOGCAT_LEVEL_FATAL
+}
+
+INVERSE_LOGCAT_LEVEMAP = {
+    v : k for k, v in LOGCAT_LEVEL_MAP.items()
+}
+
 logger = logging.getLogger(__name__)
 
 def parseTimeDate(line):
@@ -89,20 +102,12 @@ def parseLine(line):
 
     levelStr = line[tagIndex - 1]
 
-    levelMap = {
-        'V' : LOGCAT_LEVEL_VERBOSE,
-        'D' : LOGCAT_LEVEL_DEBUG,
-        'I' : LOGCAT_LEVEL_INFO,
-        'W' : LOGCAT_LEVEL_WARNING,
-        'E' : LOGCAT_LEVEL_ERROR,
-        'F' : LOGCAT_LEVEL_FATAL
-    }
 
-    if levelStr not in levelMap:
+    if levelStr not in LOGCAT_LEVEL_MAP:
         logger.error('Could not parse level of message %r' % line)
         return None
 
-    level = levelMap[levelStr]
+    level = LOGCAT_LEVEL_MAP[levelStr]
 
     # Parse message
     messageBeginIndex = line.find('):')
