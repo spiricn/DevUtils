@@ -22,6 +22,7 @@ class GccProcessor(BaseProcessor):
                   ': multiple definition',
                   ': cannot find',
                   '*** No rule to make target',
+                  'LOCAL_MODULE is not defined.'
         ]
 
         infoStrings = [
@@ -62,4 +63,4 @@ class GccProcessor(BaseProcessor):
                 if i in line:
                     return ((line, style),)
 
-        return None
+        return ((line, None),)
