@@ -1,5 +1,6 @@
 from collections import namedtuple
 import re
+
 from du.Utils import shellCommand
 
 
@@ -8,7 +9,21 @@ RemoteItem = namedtuple('RemoteItem', 'hash, number, patchset')
 RemoteInfo = namedtuple('RemoteInfo', 'head, changes, heads')
 LogItem = namedtuple('LogItem', 'hash, title')
 gerritChangeIdRegex = re.compile(r'^Change-Id: (I[a-fA-F0-9]+)$')
-Change = namedtuple('Change', 'number, ps')
+
+class Change:
+    def __init__(self, arg):
+        if isinstance(arg, int):
+            self.number = arg
+            self.ps = None
+        elif isinstance(arg, str):
+            if '/' in arg:
+                self.number, self.ps = [int(i) for i in i.split('/')]
+            else:
+                self.number = int(i)
+                self.ps = None
+
+    def __str__(self):
+        return '<Change: number=%d%s>' % (self.number, ' ps=%d' % self.ps if self.ps != None else '')
 
 def getLog(repo):
     cmdRes = shellCommand(['git', '-C', repo, 'log', '--pretty=oneline'])

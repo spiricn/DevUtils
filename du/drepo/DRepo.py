@@ -1,182 +1,59 @@
 import logging
 import os
-import shutil
 
-from du.drepo.ReleaseNoteWriter import ReleaseNotesHtmlWriter
-from du.utils import Git
-from du.utils.Git import Change
-from du.utils.ShellCommand import ShellCommand
-from du.drepo.Manifest import OPT_CLEAN, OPT_RESET
+from du.drepo.Gerrit import Gerrit
+from du.drepo.Manifest import  OPT_CLEAN
+from du.utils.ShellCommand import  ShellFactory
+
 
 logger = logging.getLogger(__name__.split('.')[-1])
 
 class DRepo:
-    REPO_REMOTE_NAME = '.repo_remote'
-    REPO_NAME = '.repo'
-    MANIFEST_NAME = 'default.xml'
-
     def __init__(self, manifest):
         self._manifest = manifest
+        self._sf = ShellFactory(raiseOnError=True, commandOutput=False)
 
     def run(self):
-        # Create repo remote
-        if not os.path.exists(self.repoRemotePath):
-            logger.debug('creating remote repo at %r ..' % self.repoRemotePath)
+        for project in self._manifest.projects:
+            gr = Gerrit(project.remote.username, project.remote.port, project.remote.server, self._sf)
 
-            os.makedirs(self.repoRemotePath)
-            ShellCommand.run('git init --bare', cwd=self.repoRemotePath)
+            projAbsPath = os.path.join(self._manifest.build.root, project.path)
 
-        logger.debug('updating manifest ..')
-        self._updateManifest()
+            if not os.path.exists(projAbsPath):
+                # Clone
+                logger.debug('cloning %r' % project.name)
 
-        # Create repo
-        repoDir = os.path.join(self._manifest.root, self.REPO_NAME)
-        if not os.path.exists(repoDir):
-            logger.debug('initializing repo at %r ..' % repoDir)
-            ShellCommand.run(('repo', 'init', '-u', self.repoRemotePath, '--no-clone-bundle'), self._manifest.root)
-        else:
-            cleanProjects = self._manifest.findProjectsWithOpt(OPT_CLEAN)
-            for proj in cleanProjects:
-                logger.debug('cleaning project %s' % proj.name)
+                self._sf.spawn(['git', 'clone', project.url, projAbsPath])
 
-                ShellCommand.run('git clean -dfx', os.path.join(self._manifest.root, proj.path))
+            # Fetch
+            logger.debug('fetching %r' % project.name)
+            self._sf.spawn(['git', 'fetch'], cwd=projAbsPath)
 
-            resetProjects = self._manifest.findProjectsWithOpt(OPT_RESET)
-            for proj in resetProjects:
-                logger.debug('resetting project %s' % proj.name)
+            # Clean
+            if OPT_CLEAN in project.opts:
+                logger.debug('cleaning %r' % project.name)
 
-                ShellCommand.run(['git', 'reset', '--hard', proj.remote + '/' + proj.branch], os.path.join(self._manifest.root, proj.path))
+                self._sf.spawn(['git', 'clean', '-dfx'], cwd=projAbsPath)
 
-        logger.debug('synchronizing ..')
-        ShellCommand.run('repo sync -j8', self._manifest.root)
+            # Reset
+            logger.debug('resetting %r' % project.name)
+            self._sf.spawn(['git', 'reset', '--hard', 'origin/%s' % project.branch], cwd=projAbsPath)
 
-        logger.debug('applying cherry-picks ..')
-        self._applyCherryPicks()
+            # Pull final touch
+            finalTouch = self._manifest.build.finalTouches[project.name] if project.name in self._manifest.build.finalTouches else None
+            if finalTouch:
+                logger.debug('pulling final touch %s for %r' % (str(finalTouch), project.name))
 
-    def _updateManifest(self):
-        res = ShellCommand.run('mktemp -d')
-        tmpDirPath = res.stdoutStr.strip()
+                ref = gr.getPatchset(finalTouch.number, finalTouch.ps)['ref']
 
-        repoLocalDir = os.path.join(tmpDirPath, os.path.basename(self.repoRemotePath))
+                self._sf.spawn(['git', 'pull', 'origin', ref], cwd=projAbsPath)
 
-        res = ShellCommand.run('git clone ' + self.repoRemotePath, tmpDirPath)
+            # Download cherry picks
+            cherryPicks = self._manifest.build.cherrypicks[project.name] if project.name in self._manifest.build.cherrypicks else []
+            for cp in cherryPicks:
+                logger.debug('downloading cherry pick %s for %r' % (str(cp), project.name))
 
-        with open(os.path.join(repoLocalDir, self.MANIFEST_NAME), 'w') as fileObj:
-            fileObj.write(self._manifest.repoManifestXml)
+                ref = gr.getPatchset(cp.number, cp.ps)['ref']
 
-        ShellCommand.run('git add ' + self.MANIFEST_NAME, repoLocalDir)
-
-        res = ShellCommand.run('git diff --cached --name-only', repoLocalDir)
-        if res.stdoutStr.strip():
-            ShellCommand.run('git commit -a -m "update"', repoLocalDir)
-            ShellCommand.run('git push origin master', repoLocalDir)
-
-        shutil.rmtree(tmpDirPath)
-
-    def _applyCherryPicks(self):
-        for proj in self._manifest.projects:
-            projCherrypicks = self._manifest.getCherrypicks(proj)
-
-            logger.debug('%r cherrypicks: %r' % (proj.name, str(projCherrypicks)))
-
-            if not projCherrypicks:
-                continue
-
-            logger.debug('for %s ..' % proj.name)
-
-            remotes = Git.lsRemote(proj.url)
-
-            for change in projCherrypicks:
-                if change.ps == None:
-                    ps = Git.getLatestPatchset(proj.url, change.number, remotes)
-
-                    if ps == None:
-                        raise RuntimeError('Unable to acquire latest patchset for project %r change %d', proj.url, change.number)
-
-                    change = Change(change.number, ps)
-
-                logger.debug('applying %d/%d ..', change.number, change.ps)
-
-                ShellCommand.run('repo download -c %s %d/%d' % (proj.name, change.number, change.ps), self._manifest.root)
-
-    @staticmethod
-    def generateNotes(manifest, outputFile):
-        writer = ReleaseNotesHtmlWriter(manifest)
-
-        historyLength = 15
-
-        writer.start(manifest)
-
-        for proj in manifest.projects:
-            logger.debug('for %s ..' % proj.name)
-            writer.startProject(proj)
-
-            localDir = os.path.join(manifest.root, proj.path)
-
-            log = Git.getLog(localDir)[:-1]
-
-            remotes = Git.lsRemote(proj.url)
-
-            cherryPickHashes = []
-
-            for change in reversed(manifest.getCherrypicks(proj)):
-                commitHash = Git.getChangeHash(proj.url, change, remotes)
-                assert(commitHash != None)
-
-                res = ShellCommand.run('git log --format=%s -n 1 ' + commitHash, os.path.join(manifest.root, proj.path))
-
-                title = res.stdoutStr.strip()
-
-                assert(title)
-
-                ps = change.ps
-
-                if ps == None:
-                    ps = Git.getLatestPatchset(proj.url, change.number, remotes)
-
-                writer.addChange(change.number, ps, title, cherryPick=True)
-
-                cherryPickHashes.append(commitHash)
-
-                entry = log.pop(0)
-
-
-                logger.debug('cp %s %s' % (entry.title, title))
-
-            maxHistory = 15
-
-            for entry in log:
-                remoteItem = Git.findRemote(proj.url, entry.hash, remotes)
-                if remoteItem:
-                    writer.addChange(remoteItem.number, remoteItem.patchset, entry.title, cherryPick=False)
-                    historyLength -= 1
-
-                    if not historyLength:
-                        break
-                else:
-                    changeId = Git.getCommitGerritChangeId(Git.getCommitMessage(localDir, entry.hash))
-
-                    logger.warning('Could not find change for %s, changeId=%s' % (str(entry), changeId))
-                    writer.addChange(-1, -1, entry.title, cherryPick=False)
-
-                maxHistory -= 1
-
-                if maxHistory == 0:
-                    break
-
-            writer.endProject()
-
-        writer.end()
-
-        with open(outputFile, 'wb') as fileObj:
-            fileObj.write(writer.notes)
-
-            logger.debug('notes written to %r' % outputFile)
-
-    @property
-    def repoRemotePath(self):
-        return os.path.join(self._manifest.root, self.REPO_REMOTE_NAME)
-
-    @property
-    def root(self):
-        return self._manifest.root
+                self._sf.spawn(['git', 'fetch', 'origin', ref], cwd=projAbsPath)
+                self._sf.spawn(['git', 'cherry-pick', 'FETCH_HEAD'], cwd=projAbsPath)

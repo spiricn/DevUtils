@@ -5,6 +5,7 @@ import traceback
 
 from du.drepo.DRepo import DRepo
 from du.drepo.Manifest import Manifest
+from du.drepo.ReleaseNoteGenerator import ReleaseNoteGenerator
 
 
 def main():
@@ -55,7 +56,9 @@ def main():
 
     if args.notes:
         logger.debug('generating notes ..')
-        DRepo.generateNotes(manifest, args.notes)
+        generator = ReleaseNoteGenerator(manifest)
+
+        generator.run(args.notes)
 
     logger.debug('-------------------------------')
     logger.debug('done')

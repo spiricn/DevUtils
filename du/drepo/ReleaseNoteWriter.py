@@ -25,10 +25,11 @@ class ReleaseNotesWriterBase:
         return self._notes
 
 class ReleaseNotesTextWriter(ReleaseNotesWriterBase):
-    def __init__(self):
+    def __init__(self, manifest):
         ReleaseNotesWriterBase.__init__(self)
+        self._manifest = manifest
 
-    def start(self, manifest):
+    def start(self):
         pass
 
     def startProject(self, proj):
@@ -50,7 +51,7 @@ class ReleaseNotesHtmlWriter(ReleaseNotesWriterBase):
         ReleaseNotesWriterBase.__init__(self)
         self._manifest = manifest
 
-    def start(self, manifest):
+    def start(self):
         self.write('<html><head>')
 
         self.write('<title>%s</title>' % self.DEFAULT_TITLE)
@@ -67,7 +68,7 @@ class ReleaseNotesHtmlWriter(ReleaseNotesWriterBase):
         self.write('<hr/>')
 
         self.write('<table>')
-        for idx, proj in enumerate(manifest.projects):
+        for idx, proj in enumerate(self._manifest.projects):
 
             self.write('<tr>')
             self.write('<td>%d.</td>' % (idx + 1))
@@ -76,11 +77,9 @@ class ReleaseNotesHtmlWriter(ReleaseNotesWriterBase):
 
         self.write('</table>')
 
-
-
     def startProject(self, proj):
         self._proj = proj
-        self._remoteHttpUrl = 'http://' + self._manifest.getRemote(self._proj.remote).fetch.split('/')[-1].split(':')[0]
+        self._remoteHttpUrl = 'http://' + self._proj.remote.server
 
         projLink = self._remoteHttpUrl + '/#/admin/projects/%s' % proj.name
         branchLink = self._remoteHttpUrl + '/#/q/status:open+project:%s+branch:%s' % (proj.name, proj.branch)

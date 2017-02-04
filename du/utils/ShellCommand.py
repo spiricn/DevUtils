@@ -3,6 +3,15 @@ import subprocess
 import sys
 import threading
 
+class ShellFactory:
+    def __init__(self, commandOutput, raiseOnError):
+        self._commandOutput = commandOutput
+        self._raiseOnError = raiseOnError
+
+    def spawn(self, command, cwd=None):
+        cmd = ShellCommand(command, cwd, self._commandOutput, self._raiseOnError)
+        cmd.start()
+        return cmd
 
 class ShellCommand:
     RETURN_CODE_OK = 0
