@@ -1,9 +1,14 @@
 import json
 
-from du.utils.ShellCommand import ShellCommand
-
+COMMIT_TYPE_INVALID, \
+COMMIT_TYPE_UNKOWN, \
+COMMIT_TYPE_CP, \
+COMMIT_TYPE_PULL, \
+COMMIT_TYPE_MERGED = range(5)
 
 class Gerrit:
+    CHANGE_ID_LENGTH = 41
+
     def __init__(self, username, port, server, sf):
         self._username = username
         self._port = port
@@ -26,13 +31,26 @@ class Gerrit:
 
         return json.loads(cmd.stdout.splitlines()[0])
 
-    def getPatchset(self, changeNumber, psNumber=None):
-        if psNumber == None:
-            res = self.query('--current-patch-set', change=changeNumber)
+    def getChange(self, change):
+        return self.query(change=change)
 
-            return res['currentPatchSet']
+    def getPatchsets(self, change):
+        return self.query('--patch-sets', change=change)['patchSets']
+
+    def getPatchset(self, change, ps=None):
+        if ps == None:
+            res = self.query('--current-patch-set', change=change)
+
+            return res['currentPatchSet'] if 'currentPatchSet' in res else None
         else:
-            res = self.query('--patch-sets', change=changeNumber)
+            if not isinstance(ps, int):
+                raise RuntimeError('Invalid patchset number: %r' % str(ps))
 
-            return res['patchSets'][str(psNumber)]
+            patchsets = self.getPatchsets(change)
+
+            for i in patchsets:
+                if i['number'] == str(ps):
+                    return i
+
+            return None
 

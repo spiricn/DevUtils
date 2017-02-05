@@ -1,3 +1,6 @@
+from du.drepo.Gerrit import COMMIT_TYPE_MERGED, COMMIT_TYPE_PULL, COMMIT_TYPE_CP, COMMIT_TYPE_UNKOWN
+
+
 class ReleaseNotesWriterBase:
     def __init__(self):
         self._notes = ''
@@ -11,7 +14,7 @@ class ReleaseNotesWriterBase:
     def endProject(self):
         raise NotImplementedError()
 
-    def addChange(self, number, ps, title, cherryPick):
+    def addChange(self, number, ps, title, commitType):
         raise NotImplementedError()
 
     def end(self):
@@ -38,8 +41,17 @@ class ReleaseNotesTextWriter(ReleaseNotesWriterBase):
     def endProject(self):
         pass
 
-    def addChange(self, number, ps, title, cherryPick):
-        self.write(' + %d/%d : %s\n' % (number, ps, title))
+    def addChange(self, number, ps, title, commitType):
+        if commitType == COMMIT_TYPE_MERGED:
+            typeStr = 'MERGED'
+        elif commitType == COMMIT_TYPE_PULL:
+            typeStr = 'PULLED'
+        elif commitType == COMMIT_TYPE_CP:
+            typeStr = 'PICKED'
+        else:
+            typeStr = '?'
+
+        self.write(' + %d/%d : %s [%s]\n' % (number, ps, title, typeStr))
 
     def end(self):
         pass
@@ -96,9 +108,16 @@ class ReleaseNotesHtmlWriter(ReleaseNotesWriterBase):
     def endProject(self):
         self.write('</table><br/>')
 
-    def addChange(self, number, ps, title, cherryPick):
-        if cherryPick:
-            self.write('<tr bgcolor="#FFC3CE">')
+    def addChange(self, number, ps, title, commitType):
+        typeColorMap = {
+            COMMIT_TYPE_PULL : '#7cff92',
+            COMMIT_TYPE_CP : '#f4dc42',
+            COMMIT_TYPE_MERGED : '#FFFFFF',
+            COMMIT_TYPE_UNKOWN : '#ce1414',
+        }
+
+        if commitType in typeColorMap:
+            self.write('<tr bgcolor="%s">' % typeColorMap[commitType])
         else:
             self.write('<tr>')
 

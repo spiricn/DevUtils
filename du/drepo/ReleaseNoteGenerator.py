@@ -1,7 +1,7 @@
 import logging
 import os
 
-from du.drepo.Gerrit import Gerrit
+from du.drepo.Gerrit import Gerrit, COMMIT_TYPE_INVALID, COMMIT_TYPE_CP, COMMIT_TYPE_MERGED, COMMIT_TYPE_PULL, COMMIT_TYPE_UNKOWN
 from du.drepo.ReleaseNoteWriter import ReleaseNotesHtmlWriter
 from du.utils import Git
 from du.utils.ShellCommand import ShellFactory
@@ -17,62 +17,87 @@ class ReleaseNoteGenerator:
     def run(self, outputFile, writer=ReleaseNotesHtmlWriter):
         writer = writer(self._manifest)
 
-        historyLength = 15
-
         writer.start()
 
         for proj in self._manifest.projects:
-            gr = Gerrit(proj.remote.username, proj.remote.port, proj.remote.server, self._sf)
+            logger.debug('processing %r ..' % proj.name)
 
-            logger.debug('for %s ..' % proj.name)
             writer.startProject(proj)
+
+            gr = Gerrit(proj.remote.username, proj.remote.port, proj.remote.server, self._sf)
 
             localDir = os.path.join(self._manifest.root, proj.path)
 
+            # Get commit log of the project
             log = Git.getLog(localDir)[:-1]
 
-            cherryPickHashes = []
+            # Number of merged commits to display
+            historyLength = 5
 
-            for change in reversed(self._manifest.getCherrypicks(proj)):
-                # Get cherry pick remote hash
-                hash = gr.getPatchset(change.number, change.ps)['revision']
+            for logItem in log:
+                # Full commit message
+                message = Git.getCommitMessage(localDir, logItem.hash)
 
-                # Get title
-                res = self._sf.spawn(['git', 'log', '--format=%s', '-n', '1', hash], os.path.join(self._manifest.root, proj.path))
-                title = res.stdoutStr.strip()
+                # Gerrit change ID extracted from the message
+                changeId = Git.getCommitGerritChangeId(message)
 
-                # Get patchset
-                ps = change.ps
-                if ps == None:
-                    ps = int(gr.getPatchset(change.number)['number'])
+                commitType = COMMIT_TYPE_INVALID
 
-                writer.addChange(change.number, ps, title, cherryPick=True)
+                if not changeId:
+                    logger.warning('could not find changeId, for commit %r' % logItem.hash)
+                    commitType = COMMIT_TYPE_UNKOWN
 
-                cherryPickHashes.append(hash)
+                if commitType != COMMIT_TYPE_UNKOWN:
+                    patchsets = gr.getPatchsets(changeId)
+                    if not patchsets:
+                        logger.warning('could not acquire patchset info from gerrit, for commit %r' % logItem.hash)
+                        commitType = COMMIT_TYPE_UNKOWN
 
-                entry = log.pop(0)
+                if commitType != COMMIT_TYPE_UNKOWN:
+                    changeInfo = gr.getChange(changeId)
+                    if not changeInfo:
+                        logger.warning('could not acquire change info from gerrit, for commit %r' % logItem.hash)
+                        commitType = COMMIT_TYPE_UNKOWN
 
-                logger.debug('cp %s %s' % (entry.title, title))
+                if commitType != COMMIT_TYPE_UNKOWN:
+                    changeNumber = int(changeInfo['number'])
 
-            maxHistory = 15
+                    changePatchset = -1
 
-            for entry in log:
-#                 remoteItem = Git.findRemote(proj.url, entry.hash, remotes)
-#                 if remoteItem:
-#                     writer.addChange(remoteItem.number, remoteItem.patchset, entry.title, cherryPick=False)
-#                     historyLength -= 1
-#
-#                     if not historyLength:
-#                         break
-#                 else:
-#                     changeId = Git.getCommitGerritChangeId(Git.getCommitMessage(localDir, entry.hash))
-#
-#                     logger.warning('Could not find change for %s, changeId=%s' % (str(entry), changeId))
-#                     writer.addChange(-1, -1, entry.title, cherryPick=False)
-#
-                maxHistory -= 1
-#
-                if maxHistory == 0:
+                    for i in patchsets:
+                        if i['revision'] == logItem.hash:
+                            # We found the remote patchset with the exact same hash as this one (so it's either pulled or merged)
+                            changePatchset = int(i['number'])
+
+                            # Check if is merged
+                            if changeInfo['status'] == 'MERGED':
+                                commitType = COMMIT_TYPE_MERGED
+                            else:
+                                commitType = COMMIT_TYPE_PULL
+
+                    if commitType == COMMIT_TYPE_INVALID:
+                        # Try to find a patchset number from the manifest
+                        for manifestPs in self._manifest.getCherrypicks(proj):
+                            if manifestPs.number == changeNumber:
+                                commitType = COMMIT_TYPE_CP
+
+                                if manifestPs.ps != None:
+                                    changePatchset = manifestPs.ps
+                                else:
+                                    # Assume it's the latest one
+                                    changePatchset = int(gr.getPatchset(changeId)['number'])
+                else:
+                    changeNumber = -1
+                    changePatchset = 0
+
+                logger.debug('\tadding change: %s %s' % (str(changeNumber), str(changePatchset)))
+
+                writer.addChange(changeNumber, changePatchset, logItem.title, commitType)
+
+                if commitType == COMMIT_TYPE_MERGED:
+                    historyLength -= 1
+
+                if historyLength == 0:
                     break
 
             writer.endProject()

@@ -23,6 +23,10 @@ class Remote:
 
         self.port = int(fetch.split(':')[-1])
 
+    def __str__(self):
+        return '<Remote name=%r fetch=%r prot=%d user=%s server=%s port=%d' % (self.name, self.fetch, self.protocol, self.username, self.server, self.port)
+
+
 
 
 class Project:
@@ -33,6 +37,9 @@ class Project:
         self.branch = branch
         self.url = url
         self.opts = opts
+
+    def __str__(self):
+        return '<Project name=%r remote=%r path=%r branch=%r url=%r opts=%r' % (self.name, self.remote.name, self.path, self.branch, self.url, ','.join([str(i) for i in self.opts]))
 
 class Build:
     def __init__(self, name, root, cherrypicks, finalTouches):
@@ -98,14 +105,14 @@ class Manifest:
             if name == buildName:
                 self._build = build
 
-            logger.debug('Adding build: %r' % str(build))
+            logger.debug('Adding build: %r' % build.name)
 
             self._builds.append(build)
 
         if not self._build:
             raise RuntimeError('Could not find active build %r in %s var' % (buildName, BUILDS_VAR_NAME))
 
-        logger.debug('Selecting build: %r' % str(self._build))
+        logger.debug('Selecting build: %r' % self._build.name)
 
         # Parse remotes
         self._remotes = []

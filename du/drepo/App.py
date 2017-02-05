@@ -44,6 +44,7 @@ def main():
     manifest = Manifest(manifestSource)
 
     if args.sync:
+        logger.debug('syncing ..')
         try:
             drepo = DRepo(manifest)
             drepo.run()
