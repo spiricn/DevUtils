@@ -1,8 +1,9 @@
-from du.ArtifactInstaller import ArtifactInstaller
-from du.Utils import shellCommand
 import filecmp
 import logging
 import os
+
+from du.ArtifactInstaller import ArtifactInstaller
+from du.Utils import shellCommand
 
 
 TYPE_INVALID, \
@@ -47,7 +48,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
             return os.path.join(path, os.path.splitext(artifact.source)[0], artifact.source)
 
         elif artifact.type == TYPE_CUSTOM:
-            return os.path.join(self.outDir, artifact.source)
+            return artifact.source
 
         else:
             raise RuntimeError('Unhandled artifact type %d' % artifact.type)
