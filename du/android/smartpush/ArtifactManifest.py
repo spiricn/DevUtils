@@ -1,11 +1,17 @@
+from copy import deepcopy
+
+
 class ArtifactManifest:
     GET_ARTIFACTS_FNC_NAME = 'getArtifacts'
 
     def __init__(self, path):
         self._path = path
 
-    def parse(self):
-        env = {}
+    def parse(self, env=None):
+        if env:
+            env = deepcopy(env)
+        else:
+            env = {}
 
         with open(self._path, 'rb') as fileObj:
             exec(fileObj.read(), env)
