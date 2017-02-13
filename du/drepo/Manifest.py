@@ -93,7 +93,6 @@ class Manifest:
 
                 cherrypicks[proj] = tmp
 
-
             # Parse final touches
             finalTouches = desc[FINAL_TOUCHES_KEY] if FINAL_TOUCHES_KEY in desc else {}
             for proj, ft in finalTouches.items():
@@ -152,7 +151,7 @@ class Manifest:
             raise RuntimeError('Required var %r missing from manifest' % name)
 
     def getCherrypicks(self, proj):
-        return self._build.cherrypicks[proj.name]
+        return self._build.cherrypicks[proj.name] if proj.name in self._build.cherrypicks else []
 
     def findProjectsWithOpt(self, opt):
         projects = []
