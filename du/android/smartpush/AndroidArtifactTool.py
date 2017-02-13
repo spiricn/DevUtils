@@ -25,7 +25,10 @@ def main():
 
     manifest = ArtifactManifest(args.manifest)
     try:
-        artifacts = manifest.parse()
+        artifacts = manifest.parse({
+            'ANDROID_ROOT' : args.android_root,
+            'PRODUCT_NAME' : args.product_name
+        })
     except Exception as e:
         logger.error('Error getting artifacts: %r' % str(e))
         return -1
