@@ -4,6 +4,7 @@ import os
 from du.drepo.Gerrit import Gerrit
 from du.drepo.Manifest import  OPT_CLEAN
 from du.utils.ShellCommand import  ShellFactory
+from du.Utils import makeDirTree
 
 
 logger = logging.getLogger(__name__.split('.')[-1])
@@ -19,11 +20,15 @@ class DRepo:
 
             projAbsPath = os.path.join(self._manifest.build.root, project.path)
 
-            if not os.path.exists(projAbsPath):
+            if not os.path.exists(os.path.join(projAbsPath, '.git')):
                 # Clone
                 logger.debug('cloning %r' % project.name)
 
-                self._sf.spawn(['git', 'clone', project.url, projAbsPath])
+                makeDirTree(projAbsPath)
+
+                self._sf.spawn(['git', 'init'], projAbsPath)
+                self._sf.spawn(['git', 'remote', 'add', 'origin', project.url], projAbsPath)
+                self._sf.spawn(['git', 'pull', 'origin', 'master'], projAbsPath)
 
             # Fetch
             logger.debug('fetching %r' % project.name)
