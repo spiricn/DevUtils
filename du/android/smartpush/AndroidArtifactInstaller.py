@@ -31,7 +31,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
         self._androidRoot = androidRoot
         self._productName = productName
         self._symbols = True
-        self._adb = adb
+        self._adb = adb.split(' ')
 
     def getFullArtifactPath(self, artifact):
         if artifact.type == TYPE_LIB:
@@ -93,7 +93,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
             elif apkType == APK_TYPE_USER:
                 logger.debug('Installing: %r' % os.path.basename(sourcePath))
 
-                cmd = shellCommand([self._adb, 'install', '-r', sourcePath])
+                cmd = shellCommand(self._adb + ['install', '-r', sourcePath])
                 if cmd.rc != 0:
                     logger.error('Error installing apk (%d): %s %s', cmd.rc, cmd.stdout, cmd.stderr)
                     return False
@@ -111,7 +111,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
 
         tmpFile = os.popen('mktemp').read().rstrip()
 
-        cmd = self._adb + ' pull ' + artifact.destination + ' ' + tmpFile
+        cmd = self._adb + ['pull', artifact.destination, tmpFile]
 
         cmdRes = shellCommand(cmd)
 
@@ -152,7 +152,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
     def isDeviceOnline(self):
         magic = 42
 
-        cmd = shellCommand([self._adb, 'shell', 'echo %d' % magic])
+        cmd = shellCommand(self._adb + ['shell', 'echo %d' % magic])
 
         if cmd.rc != 0 or cmd.stdout.strip() != str(magic):
             logger.error('Device offline (%d): %s %s' % (cmd.rc, cmd.stdout, cmd.stderr))
@@ -168,19 +168,19 @@ class AndroidArtifactInstaller(ArtifactInstaller):
 
         destDir = os.path.dirname(dest)
 
-        cmd = shellCommand([self._adb, 'shell', 'if [ -d %s ]; then echo 1; else echo 0; fi' % destDir])
+        cmd = shellCommand(self._adb + ['shell', 'if [ -d %s ]; then echo 1; else echo 0; fi' % destDir])
         if cmd.rc != 0:
             logger.error('Error checking directory (%d): %s' % (cmd.rc, cmd.stderr))
             return False
         elif cmd.stdout.strip() == '0':
             logger.debug('Creating directory %s' % destDir)
 
-            cmd = shellCommand([self._adb, 'shell', 'mkdir', '-p', destDir])
+            cmd = shellCommand(self._adb + ['shell', 'mkdir', '-p', destDir])
             if cmd.rc != 0:
                 logger.error('Error creating directory (%d): %s' % (cmd.rc, cmd.stdout))
                 return False
 
-        cmd = shellCommand(self._adb + ' push %s %s' % (source, dest))
+        cmd = shellCommand(self._adb + ['push', source, dest])
         if cmd.rc != 0:
             logger.error('Error pushing file (%d): %s %s' % (cmd.rc, cmd.stdout, cmd.stderr))
             return False
