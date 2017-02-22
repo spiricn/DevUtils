@@ -62,12 +62,25 @@ class Ctee:
 
             for output in self._outputs:
                 for chunk, style in chunks:
-                    output.stream.write(output.transformer.transform(chunk, style).encode('utf-8'))
+                    transformedChunk = output.transformer.transform(chunk, style)
+
+                    # TODO Possibly a better fix for this
+                    try:
+                        transformedChunk = transformedChunk.encode('utf-8')
+                    except UnicodeDecodeError:
+                        pass
+                    except UnicodeEncodeError:
+                        pass
+
+                    try:
+                        output.stream.write(transformedChunk)
+                    except Exception as e:
+                        print('Error writing line %r:\n%r' % str(e))
+
                 output.stream.write('\n')
                 output.stream.flush()
 
             output.stream.write(output.transformer.onLineEnd())
-
 
         for output in self._outputs:
             output.stream.write(output.transformer.getTrailer())
