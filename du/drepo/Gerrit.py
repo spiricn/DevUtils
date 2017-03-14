@@ -1,5 +1,8 @@
 import json
 
+from du.utils.ShellCommand import ShellFactory
+
+
 COMMIT_TYPE_INVALID, \
 COMMIT_TYPE_UNKOWN, \
 COMMIT_TYPE_CP, \
@@ -9,10 +12,14 @@ COMMIT_TYPE_MERGED = range(5)
 class Gerrit:
     CHANGE_ID_LENGTH = 41
 
-    def __init__(self, username, port, server, sf):
+    def __init__(self, username, port, server, sf=None):
         self._username = username
         self._port = port
         self._server = server
+
+        if not sf:
+            sf = ShellFactory(raiseOnError=True, commandOutput=False)
+
         self._sf = sf
 
     def query(self, *args, **kwargs):

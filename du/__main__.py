@@ -6,6 +6,7 @@ from du.android.smartpush.AndroidSmartPushApp import main as smartpushMain
 from du.drepo.App import main as drepoMain
 from du.drepo.indexer.App import main as indexerMain
 from du.ctee.App import main as cteeMain
+from du.drepo.GerritApp import main as gerritMain
 
 def main():
     apps = {
@@ -15,6 +16,7 @@ def main():
         'artifact' : artifactMain,
         'version' : lambda: sys.stdout.write(du.__version__ + '\n'),
         'ctee' : cteeMain,
+        'gerrit' : gerritMain,
     }
 
     if len(sys.argv) < 2:
