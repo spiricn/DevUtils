@@ -31,7 +31,7 @@ class AndroidArtifactInstaller(ArtifactInstaller):
         self._androidRoot = androidRoot
         self._productName = productName
         self._symbols = True
-        self._adb = adb.split(' ')
+        self._adb = adb.split(' ') if adb else None
 
     def getFullArtifactPath(self, artifact):
         if artifact.type == TYPE_LIB:
