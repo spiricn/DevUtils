@@ -30,6 +30,9 @@ class DRepo:
                 self._sf.spawn(['git', 'remote', 'add', 'origin', project.url], projAbsPath)
                 self._sf.spawn(['git', 'pull', 'origin', 'master'], projAbsPath)
 
+            # Make sure GIT doesn't attempt to create merge commits
+            self._sf.spawn(['git', 'config', 'pull.ff', 'only'], projAbsPath)
+
             # Fetch
             logger.debug('fetching %r' % project.name)
             self._sf.spawn(['git', 'fetch'], cwd=projAbsPath)
