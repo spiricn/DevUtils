@@ -1,5 +1,5 @@
 import json
-
+import logging
 from du.utils.ShellCommand import ShellFactory
 
 
@@ -8,6 +8,8 @@ COMMIT_TYPE_UNKOWN, \
 COMMIT_TYPE_CP, \
 COMMIT_TYPE_PULL, \
 COMMIT_TYPE_MERGED = range(5)
+
+logger = logging.getLogger(__name__.split('.')[-1])
 
 class Gerrit:
     CHANGE_ID_LENGTH = 41
@@ -42,7 +44,13 @@ class Gerrit:
         return self.query(change=change)
 
     def getPatchsets(self, change):
-        return self.query('--patch-sets', change=change)['patchSets']
+        res = self.query('--patch-sets', change=change)
+        if not res or 'patchSets' not in res:
+            logger.error('Invalid query result: %r' % str(res))
+            return None
+        else:
+            return res['patchSets']
+
 
     def getPatchset(self, change, ps=None):
         if ps == None:
