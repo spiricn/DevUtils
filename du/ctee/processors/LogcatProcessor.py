@@ -29,7 +29,7 @@ class LogcatProcessor(BaseProcessor):
             return ((line, self._findStyle(line)),)
 
         meta = ''
-        meta += parsed.time.strftime('%M:%H:%S.%f') + str(parsed.level)
+        meta += parsed.time.strftime('%H:%M:%S.%f') + str(parsed.level)
 
         paddingSize = 5 - len(str(parsed.pid))
 
