@@ -45,46 +45,46 @@ class Ctee:
             self._sema.acquire()
 
     def _mainLoop(self):
-        for output in self._outputs:
-            output.stream.write(output.transformer.getHeader())
-            output.stream.flush()
-
-        while self._running:
-            line = self._input.stream.readline()
-            if not line:
-                break
-
-            line = line.rstrip()
-
-            chunks = self._input.processor.getStyle(line)
-
-            output.stream.write(output.transformer.onLineStart())
-
+        try:
             for output in self._outputs:
-                for chunk, style in chunks:
-                    transformedChunk = output.transformer.transform(chunk, style)
-
-                    # TODO Possibly a better fix for this
-                    try:
-                        transformedChunk = transformedChunk.encode('utf-8')
-                    except UnicodeDecodeError:
-                        pass
-                    except UnicodeEncodeError:
-                        pass
-
-                    try:
-                        output.stream.write(transformedChunk)
-                    except Exception as e:
-                        print('Error writing line %r:\n%r' % str(e))
-
-                output.stream.write('\n')
+                output.stream.write(output.transformer.getHeader())
                 output.stream.flush()
 
-            output.stream.write(output.transformer.onLineEnd())
+            while self._running:
+                line = self._input.stream.readline()
+                if not line:
+                    break
 
-        for output in self._outputs:
-            output.stream.write(output.transformer.getTrailer())
-            output.stream.flush()
+                line = line.rstrip()
+
+                chunks = self._input.processor.getStyle(line)
+
+                output.stream.write(output.transformer.onLineStart())
+
+                for output in self._outputs:
+                    for chunk, style in chunks:
+                        transformedChunk = output.transformer.transform(chunk, style)
+
+                        # TODO Possibly a better fix for this
+                        try:
+                            transformedChunk = transformedChunk.encode('utf-8')
+                        except UnicodeDecodeError:
+                            pass
+                        except UnicodeEncodeError:
+                            pass
+
+                        output.stream.write(transformedChunk)
+
+                    output.stream.write('\n')
+                    output.stream.flush()
+
+                output.stream.write(output.transformer.onLineEnd())
+
+            for output in self._outputs:
+                output.stream.write(output.transformer.getTrailer())
+                output.stream.flush()
+        except Exception as e:
+            print('IO Exception ocurred: %r' % str(e))
 
         self._running = False
         self._sema.release()
