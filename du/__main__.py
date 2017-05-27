@@ -7,6 +7,7 @@ from du.drepo.App import main as drepoMain
 from du.drepo.indexer.App import main as indexerMain
 from du.ctee.App import main as cteeMain
 from du.drepo.GerritApp import main as gerritMain
+from du.cgen.App import main as cgenMain
 
 def main():
     apps = {
@@ -17,6 +18,7 @@ def main():
         'version' : lambda: sys.stdout.write(du.__version__ + '\n'),
         'ctee' : cteeMain,
         'gerrit' : gerritMain,
+        'cgen' : cgenMain
     }
 
     if len(sys.argv) < 2:
