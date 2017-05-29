@@ -23,40 +23,56 @@ def main():
     parser.add_argument('-java_package')
     parser.add_argument('-args', nargs='+')
 
-    langs = [LANG_JAVA]
+    supportedLangs = [LANG_JAVA]
 
     args = parser.parse_args()
 
+    if args.lang not in supportedLangs:
+        logger.error('Invalid language: %r' % args.lang)
+        return -1;
+
     params = []
-    for i in range(int(len(args.args) / 2)):
-        name = args.args[i * 2 + 0]
-        arg = args.args[i * 2 + 1]
 
-        value = None
+    if args.args:
+        if len(args.args) % 2 != 0:
+            logger.error('Invalid number of args: %d' % len(args.args))
+            return -1
 
-        if value == None:
-            try:
-                value = int(arg)
-                paramType = TYPE_INT32
-            except ValueError:
-                pass
+        # Parse arguments
 
-        if value == None:
-            if arg.lower() in ['true', 'false']:
-                value = True if arg.lower() == 'true' else False
-                paramType = TYPE_BOOL
+        for i in range(int(len(args.args) / 2)):
+            name = args.args[i * 2 + 0]
+            arg = args.args[i * 2 + 1]
 
-        if value == None:
-            value = arg
-            paramType = TYPE_STRING
+            value = None
 
-        param = Param(paramType, name, value)
+            if value == None:
+                # First try casting it to int
+                try:
+                    value = int(arg)
+                    paramType = TYPE_INT32
+                except ValueError:
+                    pass
 
-        logger.debug('Adding param: %s' % str(param))
+            # Try boolean
+            if value == None:
+                if arg.lower() in ['true', 'false']:
+                    value = True if arg.lower() == 'true' else False
+                    paramType = TYPE_BOOL
+
+            # Default to string
+            if value == None:
+                value = arg
+                paramType = TYPE_STRING
+
+            param = Param(paramType, name, value)
+            params.append(param)
+
+            logger.debug('Adding param: %s' % str(param))
 
         params.append(param)
 
-    if args.lang not in langs:
+    if args.lang not in supportedLangs:
         logger.error('Invalid language: %r' % args.lang)
         return -1;
 
