@@ -2,7 +2,6 @@ import logging
 
 from du.utils.Git import Change
 
-
 class Remote:
     PROTOCOL_HTTPS, \
     PROTOCOL_SSH \
@@ -25,9 +24,6 @@ class Remote:
 
     def __str__(self):
         return '<Remote name=%r fetch=%r prot=%d user=%s server=%s port=%d' % (self.name, self.fetch, self.protocol, self.username, self.server, self.port)
-
-
-
 
 class Project:
     def __init__(self, name, remote, path, branch, url, opts):

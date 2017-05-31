@@ -47,7 +47,7 @@ class DRepo:
             logger.debug('resetting %r' % project.name)
             self._sf.spawn(['git', 'reset', '--hard', 'origin/%s' % project.branch], cwd=projAbsPath)
 
-            # Tags
+            # Tag
             tag = self._manifest.build.tags[project.name] if project.name in self._manifest.build.tags else None
             if tag:
                 logger.debug('checking out tag: %r' % tag)

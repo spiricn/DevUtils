@@ -21,7 +21,6 @@ def main():
     parser.add_argument('-notes')
     parser.add_argument('-sync', action='store_true')
 
-
     args = parser.parse_args()
 
     if args.manifest_file and args.manifest_source:
@@ -40,8 +39,13 @@ def main():
 
     logger.debug('parsing manifest ..')
 
-
-    manifest = Manifest(manifestSource)
+    try:
+        manifest = Manifest(manifestSource)
+    except:
+        traceback.print_exc(file=sys.stdout)
+        logger.error('-----------------------------------')
+        logger.error('error parsing manifest')
+        return -1
 
     if args.sync:
         logger.debug('syncing ..')
@@ -57,9 +61,14 @@ def main():
 
     if args.notes:
         logger.debug('generating notes ..')
-        generator = ReleaseNoteGenerator(manifest)
-
-        generator.run(args.notes)
+        try:
+            generator = ReleaseNoteGenerator(manifest)
+            generator.run(args.notes)
+        except:
+            traceback.print_exc(file=sys.stdout)
+            logger.error('-----------------------------------')
+            logger.error('error generating release notes')
+            return -1
 
     logger.debug('-------------------------------')
     logger.debug('done')
