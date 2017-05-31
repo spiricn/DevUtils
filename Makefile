@@ -7,7 +7,7 @@ scripts_dir = ${out}/scripts
 dst_app_location = /usr/bin/${app_name}
 scripts_dist_location = /usr/local/bin/du
 
-all: clean build install
+all: clean build
 
 clean:
 	rm -rfv ${out}
