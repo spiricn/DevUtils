@@ -47,6 +47,12 @@ class DRepo:
             logger.debug('resetting %r' % project.name)
             self._sf.spawn(['git', 'reset', '--hard', 'origin/%s' % project.branch], cwd=projAbsPath)
 
+            # Tags
+            tag = self._manifest.build.tags[project.name] if project.name in self._manifest.build.tags else None
+            if tag:
+                logger.debug('checking out tag: %r' % tag)
+                self._sf.spawn(['git', 'checkout', tag], cwd=projAbsPath)
+
             # Pull final touch
             finalTouch = self._manifest.build.finalTouches[project.name] if project.name in self._manifest.build.finalTouches else None
             if finalTouch:

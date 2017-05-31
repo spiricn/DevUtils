@@ -42,11 +42,12 @@ class Project:
         return '<Project name=%r remote=%r path=%r branch=%r url=%r opts=%r' % (self.name, self.remote.name, self.path, self.branch, self.url, ','.join([str(i) for i in self.opts]))
 
 class Build:
-    def __init__(self, name, root, cherrypicks, finalTouches):
+    def __init__(self, name, root, cherrypicks, finalTouches, tags):
         self.name = name
         self.root = root
         self.cherrypicks = cherrypicks
         self.finalTouches = finalTouches
+        self.tags = tags
 
 
 OPT_CLEAN, OPT_RESET = range(2)
@@ -56,6 +57,7 @@ REMOTES_VAR_NAME = 'remotes'
 PROJECT_REMOTE_KEY = 'remote'
 PROJECT_PATH_KEY = 'path'
 PROJECT_BRANCH_KEY = 'branch'
+TAGS_KEY = 'tag'
 CHERRY_PICKS_KEY = 'cherrypicks'
 FINAL_TOUCHES_KEY = 'final_touches'
 PROJECT_OPTS_KEY = 'opts'
@@ -99,7 +101,9 @@ class Manifest:
                 finalTouches[proj] = Change(ft)
 
 
-            build = Build(name, root, cherrypicks, finalTouches)
+            tags = desc[TAGS_KEY] if TAGS_KEY in desc else {}
+
+            build = Build(name, root, cherrypicks, finalTouches, tags)
 
             if name == buildName:
                 self._build = build
