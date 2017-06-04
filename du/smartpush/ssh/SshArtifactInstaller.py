@@ -1,7 +1,7 @@
 import logging
 import os
 
-from du.ArtifactInstaller import ArtifactInstaller
+from du.smartpush.ArtifactInstaller import ArtifactInstaller
 from du.smartpush.ssh.Ssh import Ssh
 
 

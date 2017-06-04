@@ -2,7 +2,7 @@ import logging
 import os
 import shutil
 
-from du.ArtifactInstaller import ArtifactInstaller
+from du.smartpush.ArtifactInstaller import ArtifactInstaller
 
 
 TYPE_INVALID, \

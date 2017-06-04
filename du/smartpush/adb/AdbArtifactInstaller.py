@@ -2,8 +2,8 @@ import filecmp
 import logging
 import os
 
-from du.ArtifactInstaller import ArtifactInstaller
 from du.Utils import shellCommand
+from du.smartpush.ArtifactInstaller import ArtifactInstaller
 
 
 TYPE_INVALID, \
