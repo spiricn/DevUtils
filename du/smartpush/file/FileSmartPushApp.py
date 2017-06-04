@@ -13,3 +13,7 @@ class FileSmartPushApp(SmartPushAppBase):
         ai = FileArtifactInstaller(artifacts, timestampFile)
 
         return ai.install(force)
+
+    @staticmethod
+    def getProtocolName():
+        return 'file'

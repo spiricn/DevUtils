@@ -24,7 +24,7 @@ PRIV_APP_DEST_DIR = '/system/priv-app'
 
 logger = logging.getLogger(__name__.split('.')[-1])
 
-class AndroidArtifactInstaller(ArtifactInstaller):
+class AdbArtifactInstaller(ArtifactInstaller):
     def __init__(self, artifacts, androidRoot, productName, timestampFilePath, adb='adb'):
         ArtifactInstaller.__init__(self, artifacts, timestampFilePath)
 

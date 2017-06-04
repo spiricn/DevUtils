@@ -24,3 +24,7 @@ class SshSmartPushApp(SmartPushAppBase):
         ai = SshArtifactInstaller(artifacts, timestampFile, args.remote_server, args.remote_user)
 
         return ai.install(force)
+
+    @staticmethod
+    def getProtocolName():
+        return 'ssh'

@@ -4,6 +4,7 @@ import sys
 import traceback
 
 from du.smartpush.ArtifactManifest import ArtifactManifest
+from du.smartpush.adb.AdbSmartPushApp import AdbSmartPushApp
 from du.smartpush.file.FileSmartPushApp import FileSmartPushApp
 from du.smartpush.ssh.SshSmartPushApp import SshSmartPushApp
 
@@ -24,13 +25,15 @@ def main():
     sys.argv.pop(1)
 
 
-    protocolMap = {
-        'file' : FileSmartPushApp,
-        'ssh' : SshSmartPushApp,
-    }
+    protocolApps = [
+        FileSmartPushApp,
+        SshSmartPushApp,
+        AdbSmartPushApp
+    ]
+    protocolMap = { cls.getProtocolName() : cls for cls in protocolApps }
 
     if protocol not in protocolMap:
-        logger.error('Unsupported protocol %r, available=%s' % (protocol, protocolMap.keys()))
+        logger.error('Unsupported protocol %r, available: %s' % (protocol, ', '.join(protocolMap.keys())))
         return -1;
 
     app = protocolMap[protocol]()
@@ -45,9 +48,12 @@ def main():
 
     args = parser.parse_args()
 
+    if not app.parseArgs(args):
+        return -1
+
     manifest = ArtifactManifest(args.manifest)
     try:
-        artifacts = manifest.parse({})
+        artifacts = manifest.parse(app.getManifestEnv())
     except Exception as e:
         logger.error('Error getting artifacts: %r' % str(e))
         return -1
