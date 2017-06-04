@@ -16,9 +16,9 @@ class CgenJavaTest(unittest.TestCase):
         sys.argv = sys.argv[:1]
 
         sys.argv.append('java')
-        sys.argv.append('CgenTest.java')
+        sys.argv.append('CgenTestNoArgs.java')
         sys.argv += ['-java_package', 'com.cgen.test']
-        sys.argv += ['-java_class', 'CgenTest']
+        sys.argv += ['-java_class', 'CgenTestNoArgs']
 
         res = cgenMain()
         if res != 0:
@@ -36,9 +36,9 @@ class CgenJavaTest(unittest.TestCase):
         sys.argv = sys.argv[:1]
 
         sys.argv.append('java')
-        sys.argv.append('CgenTest.java')
+        sys.argv.append('CgenTestArgs.java')
         sys.argv += ['-java_package', 'com.cgen.test']
-        sys.argv += ['-java_class', 'CgenTest']
+        sys.argv += ['-java_class', 'CgenTestArgs']
 
         sys.argv += ['-args',
                      'stringArg', 'test',
