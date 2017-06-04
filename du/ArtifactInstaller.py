@@ -1,5 +1,4 @@
 from collections import namedtuple
-from du.Utils import getFileTimestamp, makeDirTree
 import filecmp
 import hashlib
 import logging
@@ -7,6 +6,9 @@ import os
 import pickle
 import shutil
 import tarfile
+
+from du.Utils import getFileTimestamp, makeDirTree
+
 
 STATUS_SKIPPED, \
 STATUS_INSTALLED, \
@@ -154,7 +156,7 @@ class ArtifactInstaller:
     def _encodePath(self, path):
         m = hashlib.md5()
 
-        m.update(path)
+        m.update(path.encode('utf-8'))
 
         return m.hexdigest()
 

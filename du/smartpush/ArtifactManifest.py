@@ -6,10 +6,11 @@ from du.smartpush.Artifact import Artifact
 class ArtifactManifest:
     GET_ARTIFACTS_FNC_NAME = 'getArtifacts'
 
-    def __init__(self, path):
-        self._path = path
+    def __init__(self, artifacts):
+        self._artifacts = artifacts
 
-    def parse(self, env=None):
+    @staticmethod
+    def parseSource(source, env=None):
         if env:
             env = deepcopy(env)
         else:
@@ -17,16 +18,22 @@ class ArtifactManifest:
 
         env['Artifact'] = Artifact
 
-        with open(self._path, 'rb') as fileObj:
-            exec(fileObj.read(), env)
+        exec(bytes(source, 'utf-8'), env)
 
-            if self.GET_ARTIFACTS_FNC_NAME not in env:
-                raise RuntimeError('Function %r not found in %r' % (self.GET_ARTIFACTS_FNC_NAME, self._path))
+        if ArtifactManifest.GET_ARTIFACTS_FNC_NAME not in env:
+            raise RuntimeError('Function %r not found' % (ArtifactManifest.GET_ARTIFACTS_FNC_NAME))
 
-        self._env = env
+        artifacts = env[ArtifactManifest.GET_ARTIFACTS_FNC_NAME]()
 
-        return self.artifacts
+        return ArtifactManifest(artifacts)
+
+    @staticmethod
+    def parseFile(path, env=None):
+        with open(path, 'r') as fileObj:
+            source = fileObj.read()
+
+            return ArtifactManifest.parseSource(source, env)
 
     @property
     def artifacts(self):
-        return self._env[self.GET_ARTIFACTS_FNC_NAME]()
+        return self._artifacts

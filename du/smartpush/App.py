@@ -51,9 +51,10 @@ def main():
     if not app.parseArgs(args):
         return -1
 
-    manifest = ArtifactManifest(args.manifest)
     try:
-        artifacts = manifest.parse(app.getManifestEnv())
+        manifest = ArtifactManifest.parseFile(args.manifest, app.getManifestEnv())
+
+        artifacts = manifest.artifacts
     except Exception as e:
         logger.error('Error getting artifacts: %r' % str(e))
         return -1
