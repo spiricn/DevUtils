@@ -1,20 +1,19 @@
 import sys
 
 import du
-from du.android.smartpush.AndroidArtifactTool import main as artifactMain
-from du.android.smartpush.AndroidSmartPushApp import main as smartpushMain
-from du.drepo.App import main as drepoMain
-from du.drepo.indexer.App import main as indexerMain
-from du.ctee.App import main as cteeMain
-from du.drepo.GerritApp import main as gerritMain
 from du.cgen.App import main as cgenMain
+from du.ctee.App import main as cteeMain
+from du.drepo.App import main as drepoMain
+from du.drepo.GerritApp import main as gerritMain
+from du.drepo.indexer.App import main as indexerMain
+from du.smartpush.App import main as smartpushMain
+
 
 def main():
     apps = {
         'drepo' : drepoMain,
         'sp' : smartpushMain,
         'drepo-index' : indexerMain,
-        'artifact' : artifactMain,
         'version' : lambda: sys.stdout.write(du.__version__ + '\n'),
         'ctee' : cteeMain,
         'gerrit' : gerritMain,

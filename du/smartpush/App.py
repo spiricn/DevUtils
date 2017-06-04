@@ -5,6 +5,7 @@ import traceback
 
 from du.smartpush.ArtifactManifest import ArtifactManifest
 from du.smartpush.file.FileSmartPushApp import FileSmartPushApp
+from du.smartpush.ssh.SshSmartPushApp import SshSmartPushApp
 
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,8 @@ def main():
 
 
     protocolMap = {
-        'file' : FileSmartPushApp
+        'file' : FileSmartPushApp,
+        'ssh' : SshSmartPushApp,
     }
 
     if protocol not in protocolMap:
