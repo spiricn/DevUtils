@@ -1,9 +1,7 @@
 #!/bin/bash
 
-export PYTHONPATH=`pwd`:$PYTHONPATH
-
 main() {
-	python -m unittest discover -s du/ctee/test/ -p "*.py"
+    PYTHONPATH=`pwd`:$PYTHONPATH python -m unittest discover -s test/ -p "*.py"
 }
 
 main "$@"
