@@ -40,7 +40,8 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('manifest')
+    parser.add_argument('-manifest_file')
+    parser.add_argument('-manifest_source')
     parser.add_argument('-timestamps')
     parser.add_argument('-set')
     parser.add_argument('-force', action='store_true')
@@ -53,7 +54,13 @@ def main():
         return -1
 
     try:
-        manifest = ArtifactManifest.parseFile(args.manifest, app.getManifestEnv())
+        if args.manifest_file:
+            manifest = ArtifactManifest.parseFile(args.manifest_file, app.getManifestEnv())
+        elif args.manifest_source:
+            manifest = ArtifactManifest.parseSource(args.manifest_source, app.getManifestEnv())
+        else:
+            logger.error('Manifest file nor source provided')
+            return -1
 
         artifacts = manifest.getArtifactSet(args.set)
 
