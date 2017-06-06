@@ -42,6 +42,7 @@ def main():
 
     parser.add_argument('manifest')
     parser.add_argument('-timestamps')
+    parser.add_argument('-set')
     parser.add_argument('-force', action='store_true')
 
     app.createArgParser(parser)
@@ -54,7 +55,12 @@ def main():
     try:
         manifest = ArtifactManifest.parseFile(args.manifest, app.getManifestEnv())
 
-        artifacts = manifest.artifacts
+        artifacts = manifest.getArtifactSet(args.set)
+
+        if not artifacts:
+            logger.error('No artifact set found (set name=%r)' % args.set)
+            return -1
+
     except Exception as e:
         logger.error('Error getting artifacts: %r' % str(e))
         return -1

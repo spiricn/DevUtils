@@ -7,7 +7,24 @@ class ArtifactManifest:
     GET_ARTIFACTS_FNC_NAME = 'getArtifacts'
 
     def __init__(self, artifacts):
-        self._artifacts = artifacts
+        self._artifactSets = {}
+
+        if isinstance(artifacts, list):
+            # Just a list of artifacts
+            self._artifactSets[None] = artifacts
+
+        elif isinstance(artifacts, dict):
+            for key, value in artifacts.items():
+                if not isinstance(key, str):
+                    raise RuntimeError('Expected string for set key, got %r' % str(key))
+
+                if not isinstance(value, list):
+                    raise RuntimeError('Expected list for set value, got %r' % str(value))
+
+                self._artifactSets[key] = value
+
+        else:
+            raise RuntimeError('Invalid artifact list value: %r' % str(artifacts))
 
     @staticmethod
     def parseSource(source, env=None):
@@ -34,6 +51,9 @@ class ArtifactManifest:
 
             return ArtifactManifest.parseSource(source, env)
 
+    def getArtifactSet(self, name=None):
+        return self._artifactSets[name] if name in self._artifactSets else None
+
     @property
-    def artifacts(self):
-        return self._artifacts
+    def artifactSets(self):
+        return self._artifactSets.keys()
