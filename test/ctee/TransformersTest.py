@@ -1,13 +1,12 @@
-import unittest
-
 from du.ctee.Color import Color
 from du.ctee.Style import Style
 from du.ctee.transformers.HtmlTransformer import HtmlTransformer
-from du.ctee.transformers.TerminalTransformer import TerminalTransformer
 from du.ctee.transformers.PasstroughTransformer import PasstroughTransformer
+from du.ctee.transformers.TerminalTransformer import TerminalTransformer
+from test.TestBase import TestBase
 
 
-class TerminalTransformerTest(unittest.TestCase):
+class TerminalTransformerTest(TestBase):
     def setUp(self):
         pass
 

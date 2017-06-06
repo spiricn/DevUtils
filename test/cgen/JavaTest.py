@@ -1,11 +1,11 @@
 from copy import deepcopy
 import sys
-import unittest
 
 from du.cgen.App import main as cgenMain
+from test.TestBase import TestBase
 
 
-class CgenJavaTest(unittest.TestCase):
+class CgenJavaTest(TestBase):
     def setUp(self):
         pass
 
@@ -16,7 +16,7 @@ class CgenJavaTest(unittest.TestCase):
         sys.argv = sys.argv[:1]
 
         sys.argv.append('java')
-        sys.argv.append('CgenTestNoArgs.java')
+        sys.argv.append(self.getTempPath('cgen/CgenTestNoArgs.java'))
         sys.argv += ['-java_package', 'com.cgen.test']
         sys.argv += ['-java_class', 'CgenTestNoArgs']
 
@@ -36,7 +36,7 @@ class CgenJavaTest(unittest.TestCase):
         sys.argv = sys.argv[:1]
 
         sys.argv.append('java')
-        sys.argv.append('CgenTestArgs.java')
+        sys.argv.append(self.getTempPath('cgen/CgenTestArgs.java'))
         sys.argv += ['-java_package', 'com.cgen.test']
         sys.argv += ['-java_class', 'CgenTestArgs']
 

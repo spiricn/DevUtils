@@ -1,9 +1,8 @@
-import unittest
-
 from du.smartpush.ArtifactManifest import ArtifactManifest
+from test.TestBase import TestBase
 
 
-class ManifestTest(unittest.TestCase):
+class ManifestTest(TestBase):
     def setUp(self):
         pass
 
