@@ -22,7 +22,7 @@ def main():
     parser.add_argument('lang',
                         help='generator language. available languages=%s' % ','.join(supportedLangs))
     parser.add_argument('outputFile',
-                        help='output file path; generated source will be stored here')
+                        help='output file path; generated source will be stored here. to use stdout set to -')
     parser.add_argument('-java_class',
                         help='if language is set to %r, this will be the name of the java class generated' % LANG_JAVA)
     parser.add_argument('-java_package',
@@ -98,21 +98,24 @@ def main():
     newContent = generator.generate()
 
     oldContent = None
-    if os.path.exists(args.outputFile):
+    if args.outputFile != '-' and  os.path.exists(args.outputFile):
         with open(args.outputFile, 'r') as fileObj:
             oldContent = fileObj.read()
 
-    if oldContent == newContent:
-        logger.debug('File up-to-date')
-        return 0
+        if oldContent == newContent:
+            logger.debug('File up-to-date')
+            return 0
 
-    outDir = os.path.dirname(args.outputFile)
+    if args.outputFile != '-':
+        outDir = os.path.dirname(args.outputFile)
 
-    if not os.path.exists(outDir):
-        os.makedirs(outDir)
+        if not os.path.exists(outDir):
+            os.makedirs(outDir)
 
-    with open(args.outputFile, 'w') as fileObj:
-        fileObj.write(newContent)
+        with open(args.outputFile, 'w') as fileObj:
+            fileObj.write(newContent)
+    else:
+        sys.stdout.write(newContent)
 
     logger.debug('File updated: %r' % args.outputFile)
 

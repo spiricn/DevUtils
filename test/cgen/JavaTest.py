@@ -27,3 +27,16 @@ class CgenJavaTest(TestBase):
                          'boolArg', 'false'
         )
         self.assertEqual(0, res)
+
+    def testStdout(self):
+        res = self.callAppMain(cgenMain,
+                         'java',
+                         '-',
+                         '-java_package', 'com.cgen.test',
+                         '-java_class', 'CgenTestArgs',
+                         '-args',
+                         'stringArg', 'test',
+                         'intArg', '42',
+                         'boolArg', 'false'
+        )
+        self.assertEqual(0, res)
