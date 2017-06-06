@@ -16,10 +16,15 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-manifest_file')
-    parser.add_argument('-manifest_source')
-    parser.add_argument('-notes')
-    parser.add_argument('-sync', action='store_true')
+    parser.add_argument('-manifest_file',
+                        help='path to manifest file')
+    parser.add_argument('-manifest_source',
+                        help='manifest source string')
+    parser.add_argument('-notes',
+                        help='release notes path; if set release notes will be generated and stored here')
+    parser.add_argument('-sync', action='store_true',
+                        help='if provided, drepo will syncrhonize source code'
+                        )
 
     args = parser.parse_args()
 

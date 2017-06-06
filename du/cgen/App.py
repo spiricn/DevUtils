@@ -10,6 +10,8 @@ from du.cgen.JavaGenerator import JavaGenerator
 LANG_JAVA = 'java'
 
 def main():
+    supportedLangs = [LANG_JAVA]
+
     logging.basicConfig(level=logging.DEBUG,
                         format='%(levelname)s/%(name)s: %(message)s')
 
@@ -17,13 +19,16 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('lang')
-    parser.add_argument('outputFile')
-    parser.add_argument('-java_class')
-    parser.add_argument('-java_package')
-    parser.add_argument('-args', nargs='+')
-
-    supportedLangs = [LANG_JAVA]
+    parser.add_argument('lang',
+                        help='generator language. available languages=%s' % ','.join(supportedLangs))
+    parser.add_argument('outputFile',
+                        help='output file path; generated source will be stored here')
+    parser.add_argument('-java_class',
+                        help='if language is set to %r, this will be the name of the java class generated' % LANG_JAVA)
+    parser.add_argument('-java_package',
+                        help='if lang is set to %r, this will be the package of the java class generated' % LANG_JAVA)
+    parser.add_argument('-args', nargs='+',
+                        help='a list of <name, value> pairs')
 
     args = parser.parse_args()
 

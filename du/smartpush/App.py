@@ -40,11 +40,16 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-manifest_file')
-    parser.add_argument('-manifest_source')
-    parser.add_argument('-timestamps')
-    parser.add_argument('-set')
-    parser.add_argument('-force', action='store_true')
+    parser.add_argument('-manifest_file',
+                        help='path to the input manifest file')
+    parser.add_argument('-manifest_source',
+                        help='input manifest source')
+    parser.add_argument('-timestamps',
+                        help='temporary directory used to store application metadata')
+    parser.add_argument('-set',
+                        help='artifact set name, if not provided the default set will be used')
+    parser.add_argument('-force', action='store_true',
+                        help='if set to true, all artifacts will be pushed regardless of their timestamp')
 
     app.createArgParser(parser)
 

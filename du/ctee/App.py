@@ -28,10 +28,15 @@ def interruptHandler(signal, frame, ctee):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-stylesheet')
-    parser.add_argument('-input')
-    parser.add_argument('-processor', help='available processors: %s' % ','.join(PROCESSOR_MAP.keys()))
-    parser.add_argument('-outputs', nargs='+', help='list of <output,transformer> pairs; available transformers: %s' % (','.join(TRANSFORMER_MAP.keys())))
+
+    parser.add_argument('-stylesheet',
+                        help='if provided, app will output the stylesheet for given processor and exit')
+    parser.add_argument('-input',
+                        help='input file. To use STDIN instead, set this to -')
+    parser.add_argument('-processor',
+                        help='input stream processor. Available processors: %s' % ','.join(PROCESSOR_MAP.keys()))
+    parser.add_argument('-outputs', nargs='+',
+                        help='iist of <output,transformer> pairs; available transformers: %s' % (','.join(TRANSFORMER_MAP.keys())))
 
 
     args = parser.parse_args()
@@ -51,8 +56,11 @@ def main():
 
     if args.input == '-':
         inputStream = sys.stdin
-    else:
+    elif args.input:
         inputStream = open(args.input, 'rb')
+    else:
+        print('input not provided')
+        return -1
 
     if args.processor in PROCESSOR_MAP:
         processor = PROCESSOR_MAP[args.processor]()
