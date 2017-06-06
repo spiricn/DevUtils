@@ -101,6 +101,11 @@ def main():
         logger.debug('File up-to-date')
         return 0
 
+    outDir = os.path.dirname(args.outputFile)
+
+    if not os.path.exists(outDir):
+        os.makedirs(outDir)
+
     with open(args.outputFile, 'w') as fileObj:
         fileObj.write(newContent)
 
