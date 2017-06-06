@@ -1,4 +1,6 @@
+from copy import deepcopy
 import os
+import sys
 import unittest
 
 
@@ -11,3 +13,32 @@ class TestBase(unittest.TestCase):
     @classmethod
     def getTempPath(cls, name):
         return os.path.join(cls.TEMP_DIR, name)
+
+    @classmethod
+    def callAppMain(cls, main, *args):
+        # Save current args
+        oldArgs = deepcopy(sys.argv)
+
+        sys.argv = sys.argv[:1]
+
+        sys.argv += args
+
+        oldCwd = os.getcwd()
+        os.chdir(os.path.dirname(__file__))
+
+        exception = None
+        try:
+            res = main()
+        except Exception as e:
+            # Remember the exception and raise it later
+            exception = e
+
+        # Restore args & wd
+        os.chdir(oldCwd)
+        sys.argv = oldArgs
+
+        # Re-raise the exception if occurred (after restoring args & wd)
+        if exception:
+            raise exception
+
+        return res
