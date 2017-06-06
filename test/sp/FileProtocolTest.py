@@ -19,7 +19,7 @@ def getArtifacts():
     artifacts += [Artifact(1, 'artifacts_source/artifact1.txt', '%s')]
     artifacts += [Artifact(1, 'artifacts_source/artifact2.txt', '%s')]
 
-    return artifacts
+    return {'main_set' : artifacts}
 ''' % (self.getTempPath('artifacts_dest/artifact1.txt'), self.getTempPath('artifacts_dest/artifact2.txt'))
 
 
@@ -36,6 +36,7 @@ def getArtifacts():
         sys.argv.append('file')
         sys.argv += ['-manifest_source', manifestSource]
         sys.argv += ['-timestamps', timestampsDir]
+        sys.argv += ['-set', 'main_set']
 
         if os.path.exists(timestampsDir):
             shutil.rmtree(timestampsDir)
