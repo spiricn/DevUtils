@@ -18,7 +18,7 @@ def main():
         'cgen' : cgenMain
     }
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2 or sys.argv[1] in ['--help', 'help', '--h']:
         print('Available apps: ' + str(apps.keys()))
         return -1
 
