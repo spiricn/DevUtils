@@ -44,11 +44,14 @@ class Ctee:
         while self._running:
             self._sema.acquire()
 
+    def _write(self, stream, data):
+        stream.write(data)
+        stream.flush()
+
     def _mainLoop(self):
         try:
             for output in self._outputs:
-                output.stream.write(output.transformer.getHeader())
-                output.stream.flush()
+                self._write(output.stream, output.transformer.getHeader())
 
             while self._running:
                 line = self._input.stream.readline()
@@ -59,31 +62,22 @@ class Ctee:
 
                 chunks = self._input.processor.getStyle(line)
 
-                output.stream.write(output.transformer.onLineStart())
+                self._write(output.stream, output.transformer.onLineStart())
 
                 for output in self._outputs:
                     for chunk, style in chunks:
                         transformedChunk = output.transformer.transform(chunk, style)
 
-                        # TODO Possibly a better fix for this
-                        try:
-                            transformedChunk = transformedChunk.encode('utf-8')
-                        except UnicodeDecodeError:
-                            pass
-                        except UnicodeEncodeError:
-                            pass
+                        self._write(output.stream, transformedChunk)
 
-                        output.stream.write(transformedChunk)
+                    self._write(output.stream, '\n')
 
-                    output.stream.write('\n')
-                    output.stream.flush()
-
-                output.stream.write(output.transformer.onLineEnd())
+                self._write(output.stream, output.transformer.onLineEnd())
 
             for output in self._outputs:
-                output.stream.write(output.transformer.getTrailer())
-                output.stream.flush()
-        except Exception as e:
+                self._write(output.stream, output.transformer.getTrailer())
+
+        except IOError as e:
             print('IO Exception ocurred: %r' % str(e))
 
         self._running = False

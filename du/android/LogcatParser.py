@@ -116,11 +116,7 @@ def parseLine(line):
         print('Could not parse message content for message %r' % line)
         return None
 
-    try:
-        message = line[messageBeginIndex + 3:].decode('utf8')
-    except UnicodeDecodeError:
-        logger.error('Could not decode message %r' % line)
-        return None
+    message = line[messageBeginIndex + 3:]
 
     # Parse pid
     pidBeginIndex = line.rfind('(', 0, messageBeginIndex)
@@ -143,7 +139,7 @@ def parseLine(line):
         logger.error('Could not parse tag of message %r' % message)
         return None
 
-    tag = line[tagBegin + 1:pidBeginIndex].rstrip().decode('utf8')
+    tag = line[tagBegin + 1:pidBeginIndex].rstrip()
 
     return LogcatMessage(pid, tag, timeDate, level, message)
 

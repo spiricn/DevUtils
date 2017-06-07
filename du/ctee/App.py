@@ -80,7 +80,7 @@ def main():
             if outputStream == '-':
                 outputStream = sys.stdout
             else:
-                outputStream = open(outputStream, 'wb')
+                outputStream = open(outputStream, 'w')
 
             if outputTransformerName in TRANSFORMER_MAP:
                 transformer = TRANSFORMER_MAP[outputTransformerName]()
