@@ -44,7 +44,6 @@ def main():
             return -1
 
         # Parse arguments
-
         for i in range(int(len(args.args) / 2)):
             name = args.args[i * 2 + 0]
             arg = args.args[i * 2 + 1]
@@ -74,8 +73,6 @@ def main():
             params.append(param)
 
             logger.debug('Adding param: %s' % str(param))
-
-        params.append(param)
 
     if args.lang not in supportedLangs:
         logger.error('Invalid language: %r' % args.lang)
