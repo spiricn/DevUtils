@@ -77,8 +77,8 @@ class Ctee:
             for output in self._outputs:
                 self._write(output.stream, output.transformer.getTrailer())
 
-        except IOError as e:
-            print('IO Exception ocurred: %r' % str(e))
+        except (IOError, ValueError):
+            pass
 
         self._running = False
         self._sema.release()
