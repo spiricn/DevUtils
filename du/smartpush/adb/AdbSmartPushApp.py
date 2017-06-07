@@ -19,12 +19,17 @@ class AdbSmartPushApp(SmartPushAppBase):
         if not args.android_root:
             logger.error('android root not provided')
             return False
+        self._androidRoot = args.android_root
 
         if not args.product_name:
             logger.error('android product name not provided')
             return False
+        self._productName = args.product_name
 
         return True
+
+    def getManifestEnv(self):
+        return {'ANDROID_ROOT' : self._androidRoot}
 
     def execute(self, args, artifacts, timestampFile, force):
         ai = AdbArtifactInstaller(artifacts, args.android_root, args.product_name, timestampFile, args.adb if args.adb else 'adb')
