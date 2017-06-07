@@ -89,7 +89,7 @@ class AdbArtifactInstaller(ArtifactInstaller):
 
                 cmd = shellCommand(self._adb + ['install', '-r', sourcePath])
                 if cmd.rc != 0:
-                    logger.error('Error installing apk (%d): %s %s', cmd.rc, cmd.stdout, cmd.stderr)
+                    logger.error('Error installing apk (%d): %s %s', cmd.rc, cmd.strStdout, cmd.strStderr)
                     return False
                 return True
             else:
@@ -148,8 +148,8 @@ class AdbArtifactInstaller(ArtifactInstaller):
 
         cmd = shellCommand(self._adb + ['shell', 'echo %d' % magic])
 
-        if cmd.rc != 0 or cmd.stdout.strip() != str(magic):
-            logger.error('Device offline (%d): %s %s' % (cmd.rc, cmd.stdout, cmd.stderr))
+        if cmd.rc != 0 or cmd.strStdout.rstrip() != str(magic):
+            logger.error('Device offline (%d): %s %s' % (cmd.rc, cmd.strStdout, cmd.strStderr))
             return False
 
         return True
@@ -164,19 +164,19 @@ class AdbArtifactInstaller(ArtifactInstaller):
 
         cmd = shellCommand(self._adb + ['shell', 'if [ -d %s ]; then echo 1; else echo 0; fi' % destDir])
         if cmd.rc != 0:
-            logger.error('Error checking directory (%d): %s' % (cmd.rc, cmd.stderr))
+            logger.error('Error checking directory (%d): %s' % (cmd.rc, cmd.strStderr))
             return False
-        elif cmd.stdout.strip() == '0':
+        elif cmd.strStdout.strip() == '0':
             logger.debug('Creating directory %s' % destDir)
 
             cmd = shellCommand(self._adb + ['shell', 'mkdir', '-p', destDir])
             if cmd.rc != 0:
-                logger.error('Error creating directory (%d): %s' % (cmd.rc, cmd.stdout))
+                logger.error('Error creating directory (%d): %s' % (cmd.rc, cmd.strStdout))
                 return False
 
         cmd = shellCommand(self._adb + ['push', source, dest])
         if cmd.rc != 0:
-            logger.error('Error pushing file (%d): %s %s' % (cmd.rc, cmd.stdout, cmd.stderr))
+            logger.error('Error pushing file (%d): %s %s' % (cmd.rc, cmd.strStdout, cmd.strStderr))
             return False
 
         return True

@@ -4,7 +4,7 @@ import subprocess
 import tarfile
 
 
-CommandRes = namedtuple('CommandRes', 'stdout, stderr, rc')
+CommandRes = namedtuple('CommandRes', 'stdout, stderr, rc, strStdout, strStderr')
 
 def getFileTimestamp(path):
     return os.stat(path).st_mtime
@@ -17,7 +17,7 @@ def shellCommand(command):
 
     res = pipe.communicate()
 
-    return CommandRes(res[0], res[1], pipe.returncode)
+    return CommandRes(res[0], res[1], pipe.returncode, str(res[0], 'UTF-8'), str(res[1], 'UTF-8'))
 
 def makeDirTree(path):
     if os.path.exists(path) and os.path.isdir(path):
