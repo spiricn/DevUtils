@@ -74,7 +74,9 @@ def main():
             return -1
 
     except Exception as e:
-        logger.error('Error getting artifacts: %r' % str(e))
+        logger.error(traceback.format_exc())
+        logger.debug('#' * 40)
+        logger.error('Error getting artifacts')
         return -1
 
     timestampFile = '.smart-push-timestamps'
@@ -84,8 +86,9 @@ def main():
     try:
         res = app.execute(args, artifacts, timestampFile, args.force)
     except Exception as e:
-        logger.error('Error installing artifacts: %s' % str(e))
         logger.error(traceback.format_exc())
+        logger.debug('#' * 40)
+        logger.error('Error installing artifacts')
         return -1
 
     logger.debug('#' * 40)

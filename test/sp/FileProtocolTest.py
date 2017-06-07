@@ -14,8 +14,8 @@ class FileProtocolTest(TestBase):
 def getArtifacts():
     artifacts = []
 
-    artifacts += [Artifact(1, 'sp/artifacts_source/artifact1.txt', '%s')]
-    artifacts += [Artifact(1, 'sp/artifacts_source/artifact2.txt', '%s')]
+    artifacts += [Artifact(TYPE_CUSTOM, 'sp/artifacts_source/artifact1.txt', '%s')]
+    artifacts += [Artifact(TYPE_CUSTOM, 'sp/artifacts_source/artifact2.txt', '%s')]
 
     return {'main_set' : artifacts}
 ''' % (self.getTempPath('artifacts_dest/artifact1.txt'), self.getTempPath('artifacts_dest/artifact2.txt'))

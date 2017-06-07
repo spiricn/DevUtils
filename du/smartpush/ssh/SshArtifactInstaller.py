@@ -1,12 +1,9 @@
 import logging
 import os
 
-from du.smartpush.ArtifactInstaller import ArtifactInstaller
+from du.smartpush.ArtifactInstaller import ArtifactInstaller, TYPE_CUSTOM
 from du.smartpush.ssh.Ssh import Ssh
 
-
-TYPE_INVALID, \
-TYPE_CUSTOM = range(2)
 
 logger = logging.getLogger(__name__.split('.')[-1])
 

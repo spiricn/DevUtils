@@ -3,14 +3,8 @@ import logging
 import os
 
 from du.Utils import shellCommand
-from du.smartpush.ArtifactInstaller import ArtifactInstaller
+from du.smartpush.ArtifactInstaller import ArtifactInstaller, TYPE_CUSTOM, TYPE_LIB, TYPE_BIN, TYPE_APK
 
-
-TYPE_INVALID, \
-TYPE_LIB, \
-TYPE_BIN, \
-TYPE_APK, \
-TYPE_CUSTOM = range(5)
 
 APK_TYPE_KEY = 'type'
 APK_TYPE_SYSTEM = 'system'
@@ -25,7 +19,7 @@ PRIV_APP_DEST_DIR = '/system/priv-app'
 logger = logging.getLogger(__name__.split('.')[-1])
 
 class AdbArtifactInstaller(ArtifactInstaller):
-    def __init__(self, artifacts, androidRoot, productName, timestampFilePath, adb='adb'):
+    def __init__(self, artifacts, androidRoot, productName, timestampFilePath, adb):
         ArtifactInstaller.__init__(self, artifacts, timestampFilePath)
 
         self._androidRoot = androidRoot

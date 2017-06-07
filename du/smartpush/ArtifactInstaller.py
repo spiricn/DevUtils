@@ -14,6 +14,12 @@ STATUS_SKIPPED, \
 STATUS_INSTALLED, \
 STATUS_ERROR = range(3)
 
+TYPE_INVALID, \
+TYPE_LIB, \
+TYPE_BIN, \
+TYPE_APK, \
+TYPE_CUSTOM = range(5)
+
 class Artifact(object):
     def __init__(self, artifactType, source=None, destination=None, checkDifference=None, install=True, opts={}):
         self._type = artifactType

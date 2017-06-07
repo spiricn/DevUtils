@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from du.smartpush.Artifact import Artifact
-
+from du.smartpush.ArtifactInstaller import TYPE_CUSTOM, TYPE_LIB, TYPE_BIN, TYPE_APK
 
 class ArtifactManifest:
     GET_ARTIFACTS_FNC_NAME = 'getArtifacts'
@@ -34,6 +34,10 @@ class ArtifactManifest:
             env = {}
 
         env['Artifact'] = Artifact
+        env['TYPE_CUSTOM'] = TYPE_CUSTOM
+        env['TYPE_LIB'] = TYPE_LIB
+        env['TYPE_BIN'] = TYPE_BIN
+        env['TYPE_BIN'] = TYPE_BIN
 
         exec(bytes(source, 'utf-8'), env)
 

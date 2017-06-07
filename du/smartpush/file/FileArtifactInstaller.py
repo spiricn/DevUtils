@@ -2,11 +2,7 @@ import logging
 import os
 import shutil
 
-from du.smartpush.ArtifactInstaller import ArtifactInstaller
-
-
-TYPE_INVALID, \
-TYPE_CUSTOM = range(2)
+from du.smartpush.ArtifactInstaller import ArtifactInstaller, TYPE_CUSTOM
 
 logger = logging.getLogger(__name__.split('.')[-1])
 
