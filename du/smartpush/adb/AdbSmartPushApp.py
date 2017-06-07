@@ -13,6 +13,7 @@ class AdbSmartPushApp(SmartPushAppBase):
     def createArgParser(self, parser):
         parser.add_argument('-android_root')
         parser.add_argument('-product_name')
+        parser.add_argument('-adb')
 
     def parseArgs(self, args):
         if not args.android_root:
@@ -26,7 +27,7 @@ class AdbSmartPushApp(SmartPushAppBase):
         return True
 
     def execute(self, args, artifacts, timestampFile, force):
-        ai = AdbArtifactInstaller(artifacts, args.android_root, args.product_name, timestampFile)
+        ai = AdbArtifactInstaller(artifacts, args.android_root, args.product_name, timestampFile, args.adb if args.adb else 'adb')
 
         return ai.install(force)
 
