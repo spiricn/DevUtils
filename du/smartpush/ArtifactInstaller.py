@@ -7,7 +7,7 @@ import pickle
 import shutil
 import tarfile
 
-from du.Utils import getFileTimestamp, makeDirTree
+from du.Utils import getFileTimestamp, makeDirTree, getHumanReadableSize
 
 
 STATUS_SKIPPED, \
@@ -182,6 +182,7 @@ class ArtifactInstaller:
         if not self._force and (artifact.checkDifference and self.artifactNeedsUpdate(artifact)):
             return STATUS_SKIPPED
 
+        logger.debug('Installing %r ( %s )' % (os.path.basename(fullPath), getHumanReadableSize(os.path.getsize(fullPath))))
         if not self.installArtifact(artifact):
             return STATUS_ERROR
 

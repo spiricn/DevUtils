@@ -158,8 +158,6 @@ class AdbArtifactInstaller(ArtifactInstaller):
         if not self.isDeviceOnline():
             return False
 
-        logger.debug('Pushing: %r' % os.path.basename(source))
-
         destDir = os.path.dirname(dest)
 
         cmd = shellCommand(self._adb + ['shell', 'if [ -d %s ]; then echo 1; else echo 0; fi' % destDir])

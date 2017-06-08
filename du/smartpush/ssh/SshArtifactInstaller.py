@@ -34,8 +34,6 @@ class SshArtifactInstaller(ArtifactInstaller):
             raise RuntimeError('Unhandled artifact type %d' % artifact.type)
 
     def _push(self, source, dest):
-        logger.debug('Pushing: %r -> %r' % (os.path.basename(source), dest))
-
         destDir = os.path.dirname(dest)
         res = self._ssh.shell(['if [ -d %s ]; then echo 1; else echo 0; fi' % destDir])
         if res.rc != 0:

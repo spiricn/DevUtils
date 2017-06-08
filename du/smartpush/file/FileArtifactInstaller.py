@@ -31,8 +31,6 @@ class FileArtifactInstaller(ArtifactInstaller):
             raise RuntimeError('Unhandled artifact type %d' % artifact.type)
 
     def _push(self, source, dest):
-        logger.debug('Pushing: %r -> %r' % (os.path.basename(source), dest))
-
         destDir = os.path.dirname(dest)
         if not os.path.isdir(destDir):
             logger.debug('creating directory: %r' % destDir)

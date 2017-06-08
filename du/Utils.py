@@ -30,3 +30,17 @@ def archiveDirectory(archivePath, dirPath):
 
     t.add(dirPath, arcname=os.path.basename(dirPath))
     t.close()
+
+def getHumanReadableSize(size):
+    KB = 1024
+    MB = KB * KB
+    GB = MB * MB
+
+    if size < KB:
+        return '%d B' % size
+    elif size >= KB and size < MB:
+        return '%.2f KB' % (size / KB)
+    elif size >= MB and size < GB:
+        return '%.2f MB' % (size / MB)
+    else:
+        return '%.2f GB' % (size / GB)
