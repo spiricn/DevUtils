@@ -25,11 +25,11 @@ def getLog(repo):
     cmdRes = shellCommand(['git', '-C', repo, 'log', '--pretty=oneline'])
 
     if cmdRes.rc != 0:
-        raise RuntimeError('Command failed (%d): %r' % (cmdRes.rc, cmdRes.stderr))
+        raise RuntimeError('Command failed (%d): %r' % (cmdRes.rc, cmdRes.strStderr))
 
     items = []
 
-    for line in cmdRes.stdout.splitlines():
+    for line in cmdRes.strStdout.splitlines():
         spliter = line.find(' ')
 
         commitHash = line[:spliter].strip()
@@ -44,10 +44,10 @@ def getCommitMessage(repo, commitHash):
 
     cmdRes = shellCommand(['git', '-C', repo, 'show', '-s', '--format=%B', commitHash])
     if cmdRes.rc != 0:
-        raise RuntimeError('Command failed (%d): %r' % (cmdRes.rc, cmdRes.stderr))
+        raise RuntimeError('Command failed (%d): %r' % (cmdRes.rc, cmdRes.strStderr))
 
     message = ''
-    for line in cmdRes.stdout:
+    for line in cmdRes.strStdout:
         message += line
 
     return message

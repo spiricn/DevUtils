@@ -38,7 +38,7 @@ class Gerrit:
 
         cmd = self._sf.spawn(['ssh', '-p', str(self._port), self._username + '@' + self._server, 'gerrit', 'query', query])
 
-        return json.loads(cmd.stdout.splitlines()[0])
+        return json.loads(cmd.stdoutStr.splitlines()[0])
 
     def getChange(self, change):
         return self.query(change=change)

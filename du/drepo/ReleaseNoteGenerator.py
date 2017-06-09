@@ -104,7 +104,7 @@ class ReleaseNoteGenerator:
 
         writer.end()
 
-        with open(outputFile, 'wb') as fileObj:
+        with open(outputFile, 'w') as fileObj:
             fileObj.write(writer.notes)
 
             logger.debug('notes written to %r' % outputFile)

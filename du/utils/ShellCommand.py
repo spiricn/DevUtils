@@ -15,7 +15,7 @@ class ShellFactory:
 
 class ShellCommand:
     RETURN_CODE_OK = 0
-    OUTPUT_ENCODING = 'ascii'
+    OUTPUT_ENCODING = 'utf-8'
 
     def __init__(self, command, cwd=None, commandOutput=True, raiseOnError=False):
         if isinstance(command, str):
@@ -61,8 +61,8 @@ class ShellCommand:
             stderrThread.join()
             stdoutThread.join()
         else:
-            self.stderr = self._pipe.stderr.read()
-            self.stdout = self._pipe.stdout.read()
+            self._stderr = self._pipe.stderr.read()
+            self._stdout = self._pipe.stdout.read()
 
         if self.rc != self.RETURN_CODE_OK and self._raiseOnError:
             message = ''
@@ -70,13 +70,13 @@ class ShellCommand:
             message += 'Command failed\n'
             message += '\tcommand: %r\n' % ' '.join(self._command)
             message += '\tcode: %d\n' % self.rc
-            message += self.stderrStr
+            message += self._stderrStr
 
             raise RuntimeError(message)
 
     def _pipeRead(self, stream, output):
         for i in iter(stream):
-            output.write(i)
+            output.write(i.decode(self.OUTPUT_ENCODING))
             output.flush()
 
             if output == sys.stderr:
@@ -98,8 +98,8 @@ class ShellCommand:
 
     @property
     def stdoutStr(self):
-        return self.stdout.encode(self.OUTPUT_ENCODING)
+        return self._stdout.decode(self.OUTPUT_ENCODING)
 
     @property
     def stderrStr(self):
-        return self.stderr.encode(self.OUTPUT_ENCODING)
+        return self._stderr.decode(self.OUTPUT_ENCODING)
