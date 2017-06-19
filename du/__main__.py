@@ -1,6 +1,7 @@
 import sys
 
 import du
+from du.android.hdump.App import main as hdumpMain
 from du.cgen.App import main as cgenMain
 from du.ctee.App import main as cteeMain
 from du.drepo.App import main as drepoMain
@@ -15,7 +16,8 @@ def main():
         'version' : lambda: sys.stdout.write(du.__version__ + '\n'),
         'ctee' : cteeMain,
         'gerrit' : gerritMain,
-        'cgen' : cgenMain
+        'cgen' : cgenMain,
+        'hdump' : hdumpMain,
     }
 
     if len(sys.argv) < 2 or sys.argv[1] in ['--help', 'help', '--h']:
