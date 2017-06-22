@@ -19,8 +19,7 @@ class TestBase(unittest.TestCase):
         # Save current args
         oldArgs = deepcopy(sys.argv)
 
-        sys.argv = sys.argv[:1]
-
+        sys.argv = ['python']
         sys.argv += args
 
         oldCwd = os.getcwd()

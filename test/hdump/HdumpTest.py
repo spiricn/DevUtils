@@ -8,7 +8,9 @@ class HdumpTest(TestBase):
 
     def testHdump(self):
         res = self.callAppMain(hdumpMain,
-           'hdump/heap_dump.txt'
+           'hdump/heap_dump.txt',
+           '-plainOutput', '-',
+           '-htmlOutput', '-',
         )
 
         self.assertEqual(0, res)

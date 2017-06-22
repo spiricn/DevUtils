@@ -91,9 +91,9 @@ class HeapDump:
                 frameStack.append(stackFrame)
 
             if record.zygoteChild:
-                zygoteStacks.append(frameStack)
-            else:
                 appStacks.append(frameStack)
+            else:
+                zygoteStacks.append(frameStack)
 
         return ProcessedStacks(zygoteStacks, appStacks, stackFrameMap)
 

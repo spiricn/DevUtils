@@ -4,6 +4,7 @@ import sys
 
 from du.android.hdump.HeapDump import HeapDump
 from du.android.hdump.SymbolResolver import SymbolResolver
+from du.android.hdump.renderer.HtmlRenderer import HtmlRenderer
 from du.android.hdump.renderer.PlainTextRenderer import PlainTextRenderer
 
 
@@ -17,7 +18,8 @@ def main():
 
     parser.add_argument('dumpFile')
     parser.add_argument('-symbolsDir')
-    parser.add_argument('-outputFile')
+    parser.add_argument('-plainOutput')
+    parser.add_argument('-htmlOutput')
 
     args = parser.parse_args()
 
@@ -28,19 +30,23 @@ def main():
 
     heapDump = HeapDump(heapDumpString, resolver)
 
-    renderer = PlainTextRenderer()
+    renderers = {
+        args.plainOutput : PlainTextRenderer,
+        args.htmlOutput : HtmlRenderer,
+    }
 
-    if not args.outputFile or args.outputFile == '-':
-        outputFile = sys.stdout
-    else:
-        outputFile = open(args.outputFile, 'w')
+    for filePath, rendererCls in renderers.items():
+        if not filePath:
+            continue
 
-    renderer.render(outputFile, heapDump)
+        if filePath == '-':
+            fileObj = sys.stdout
+        else:
+            fileObj = open(filePath, 'w')
 
-    if args.outputFile and args.outputFile != '-':
-        outputFile.close()
-
-    logger.debug('output file: %r' % args.outputFile)
+        rendererCls().render(fileObj, heapDump)
+        if filePath != '-':
+            fileObj.close()
 
     return 0
 
