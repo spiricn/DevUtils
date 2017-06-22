@@ -1,3 +1,4 @@
+from collections import namedtuple
 import logging
 import symbol
 
@@ -30,11 +31,20 @@ class Node:
 
             self.children[frame.address].addStack(frameStack[1:])
 
+ProcessedStacks = namedtuple('ResolvedSymbols', 'zygoteStacks, appStacks, frameMap')
+
 class HeapDump:
     def __init__(self, string, symbolResolver):
-        doc = HeapDumpDoc(string)
+        self._doc = HeapDumpDoc(string)
 
-        self._rootNode = self._buildTree(self._resolveSymbols(doc, symbolResolver))
+        res = self._processStacks(self._doc, symbolResolver)
+
+        self._zygoteTree = self._buildTree(res.zygoteStacks)
+        self._appTree = self._buildTree(res.appStacks)
+
+    @property
+    def doc(self):
+        return self._doc
 
     @classmethod
     def _buildTree(cls, frameStacks):
@@ -45,13 +55,14 @@ class HeapDump:
         return rootNode
 
     @classmethod
-    def _resolveSymbols(cls, doc, resolver):
+    def _processStacks(cls, doc, resolver):
         # Mapping of offsetAddress to Symbol
         stackFrameMap = {}
 
         logger.debug('resolving symbols ..')
 
-        frameStacks = []
+        zygoteStacks = []
+        appStacks = []
 
         for record in doc.allocationRecords:
             frameStack = []
@@ -79,10 +90,17 @@ class HeapDump:
 
                 frameStack.append(stackFrame)
 
-            frameStacks.append(frameStack)
+            if record.zygoteChild:
+                zygoteStacks.append(frameStack)
+            else:
+                appStacks.append(frameStack)
 
-        return frameStacks
+        return ProcessedStacks(zygoteStacks, appStacks, stackFrameMap)
 
     @property
-    def rootNode(self):
-        return self._rootNode
+    def zygoteRootNode(self):
+        return self._zygoteTree
+
+    @property
+    def appRootNode(self):
+        return self._appTree

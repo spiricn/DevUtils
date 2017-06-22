@@ -1,5 +1,6 @@
 import os
 
+from du.Utils import getHumanReadableSize
 from du.android.hdump.renderer.BaseRenderer import BaseRenderer
 
 
@@ -8,10 +9,17 @@ class PlainTextRenderer(BaseRenderer):
         BaseRenderer.__init__(self)
 
 
-    def render(self, stream, node):
+    def render(self, stream, heapDump):
         self._stream = stream
 
-        self._renderNode(0, node)
+        self._stream.write('Total memory: %s\n\n' % getHumanReadableSize(heapDump.doc.totalMemory))
+
+        nodes = (('Zygote', heapDump.zygoteRootNode), ('App', heapDump.appRootNode))
+
+        for nodeName, node in nodes:
+            self._stream.write('#' * 80 + '\n')
+            self._stream.write('%s\n\n' % nodeName)
+            self._renderNode(0, node)
 
     def _renderNode(self, indent, node):
         if node.frame:

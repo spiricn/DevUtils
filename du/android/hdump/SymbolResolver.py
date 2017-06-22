@@ -46,22 +46,6 @@ class SymbolResolver:
 
         libraryPath = self._libraries[libraryName]
 
-        cmd = shellCommand(['objdump', '-w', '-j', '.text', '-h', libraryPath])
-        if cmd.rc != 0:
-            logger.error('command failed (%d): %r' % (cmd.rc, cmd.strStderr))
-            return self.UNKOWN_SYMBOL
-
-        fileOffset = None
-        for line in cmd.strStdout.splitlines():
-            tokens = line.split()
-
-            if len(tokens) > 5 and tokens[1] == '.text':
-                fileOffset = int(tokens[5], 16)
-
-        if not fileOffset:
-            logger.error('could not find file offest')
-            return self.UNKOWN_SYMBOL
-
         address = address
 
         cmd = shellCommand(['addr2line', '-C', '-f', '-e', libraryPath, hex(address)])

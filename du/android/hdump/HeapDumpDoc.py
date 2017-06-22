@@ -24,13 +24,13 @@ class HeapDumpDoc:
     VERSION = '1.0'
     MAPS_START = 'MAPS'
     MAPS_END = 'END'
+    ZYGOTE_CHILD_ID = 'z'
+    SIZE_ID = 'sz'
+    NUMBER_ID = 'num'
+    BACKTRACE_ID = 'bt'
 
     def __init__(self, string):
         self._parseString(string)
-
-    @property
-    def tree(self):
-        return self._rootNode
 
     @property
     def allocationRecords(self):
@@ -40,28 +40,36 @@ class HeapDumpDoc:
     def pidMaps(self):
         return self._pidMaps
 
-    @staticmethod
-    def _parseAllocationRecord(line):
+    @property
+    def version(self):
+        return self._version
+
+    @property
+    def totalMemory(self):
+        return self._totalMemory
+
+    @classmethod
+    def _parseAllocationRecord(cls, line):
         tokens = [line for line in line.split(' ') if line]
 
         # Zygote child
-        if tokens[0] != 'z':
+        if tokens[0] != cls.ZYGOTE_CHILD_ID:
             return None
 
         zygoteChild = True if int(tokens[1]) == 1 else False
 
         # Size
-        if tokens[2] != 'sz':
+        if tokens[2] != cls.SIZE_ID:
             return None
         size = int(tokens[3])
 
         # Number
-        if tokens[4] != 'num':
+        if tokens[4] != cls.NUMBER_ID:
             return None
         num = int(tokens[5])
 
         # Backtrace
-        if tokens[6] != 'bt':
+        if tokens[6] != cls.BACKTRACE_ID:
             return None
 
         backtrace = []
@@ -125,7 +133,7 @@ class HeapDumpDoc:
         mapsStarted = False
 
         for lineNumber, line in enumerate(lines):
-            if line.startswith('z '):
+            if line.startswith(self.ZYGOTE_CHILD_ID):
                 allocRecord = self._parseAllocationRecord(line)
                 if allocRecord:
                     self._allocationRecords.append(allocRecord)

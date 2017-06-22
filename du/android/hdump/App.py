@@ -35,7 +35,7 @@ def main():
     else:
         outputFile = open(args.outputFile, 'w')
 
-    renderer.render(outputFile, heapDump.rootNode)
+    renderer.render(outputFile, heapDump)
 
     if args.outputFile and args.outputFile != '-':
         outputFile.close()
