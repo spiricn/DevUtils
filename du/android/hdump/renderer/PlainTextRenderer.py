@@ -26,5 +26,5 @@ class PlainTextRenderer(BaseRenderer):
             self._stream.write('.' * indent)
             self._stream.write(os.path.basename(node.frame.library) + ' ' + node.frame.symbol.file + ' ' + node.frame.symbol.function + ':' + str(node.frame.symbol.line) + '\n')
 
-        for child in node.children.values():
+        for child in sorted(node.children, key=lambda child: child.size, reverse=True):
             self._renderNode(indent + 1, child)

@@ -167,9 +167,9 @@ class HtmlRenderer(BaseRenderer):
             itemId = 'item-%d' % self._idCounter
 
             if rootName:
-                label = rootName
+                label = str(node.size) + ' ' + rootName
             else:
-                label = os.path.basename(node.frame.library) + ' ' + node.frame.symbol.file + ' ' + node.frame.symbol.function + ':' + str(node.frame.symbol.line)
+                label = str(node.size) + ' ' + os.path.basename(node.frame.library) + ' ' + node.frame.symbol.file + ' ' + node.frame.symbol.function + ':' + str(node.frame.symbol.line)
 
             if node.children:
                 self._stream.write(indentStr + '<li><input type="checkbox" id="%s"><label for="%s">%s</label>\n' % (itemId, itemId, label))
@@ -178,7 +178,8 @@ class HtmlRenderer(BaseRenderer):
 
             self._stream.write(indentStr + '<ul>\n')
 
-            for child in node.children.values():
+            # Iterate trough children, sorted by size
+            for child in sorted(node.children, key=lambda child: child.size, reverse=True):
                 self._renderNode(None, indent + 1, child)
             self._stream.write('</li>')
 

@@ -10,28 +10,62 @@ logger = logging.getLogger(__name__.split('.')[-1])
 
 class StackFrame:
     def __init__(self, address=0, library='', symbol=SymbolResolver.UNKOWN_SYMBOL):
-        self.address = address
-        self.library = library
-        self.symbol = symbol
+        self._address = address
+        self._library = library
+        self._symbol = symbol
+
+    @property
+    def address(self):
+        return self._address
+
+    @property
+    def library(self):
+        return self._library
+
+    @property
+    def symbol(self):
+        return self._symbol
 
 class Node:
     def __init__(self, frame=None):
         if not frame:
             frame = StackFrame()
 
-        self.frame = frame
-        self.children = {}
+        self._frame = frame
+        self._children = {}
+        self._numAllocations = 0
+        self._size = 0
 
-    def addStack(self, frameStack):
+    @property
+    def size(self):
+        return self._size
+
+    @property
+    def numAllocations(self):
+        return self._numAllocations
+
+    @property
+    def frame(self):
+        return self._frame
+
+    @property
+    def children(self):
+        return self._children.values()
+
+    def addStack(self, size, frameStack):
+        self._size += size
+
         if frameStack:
             frame = frameStack[0]
 
-            if not frame.address in self.children:
-                self.children[frame.address] = Node(frame)
+            if not frame.address in self._children:
+                self._children[frame.address] = Node(frame)
 
-            self.children[frame.address].addStack(frameStack[1:])
+            self._children[frame.address].addStack(size, frameStack[1:])
 
 ProcessedStacks = namedtuple('ResolvedSymbols', 'zygoteStacks, appStacks, frameMap')
+
+Stack = namedtuple('Stack', 'size, numAllocations, frames')
 
 class HeapDump:
     def __init__(self, string, symbolResolver):
@@ -51,7 +85,7 @@ class HeapDump:
         logger.debug('building tree ..')
         rootNode = Node()
         for frameStack in frameStacks:
-            rootNode.addStack(frameStack)
+            rootNode.addStack(frameStack.size, frameStack.frames)
         return rootNode
 
     @classmethod
@@ -90,6 +124,8 @@ class HeapDump:
 
                 frameStack.append(stackFrame)
 
+
+            frameStack = Stack(record.size, record.number, frameStack)
             if record.zygoteChild:
                 appStacks.append(frameStack)
             else:
