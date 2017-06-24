@@ -12,7 +12,14 @@ class TestBase(unittest.TestCase):
 
     @classmethod
     def getTempPath(cls, name):
-        return os.path.join(cls.TEMP_DIR, name)
+        fullPath = os.path.join(cls.TEMP_DIR, name)
+
+        dirPath = os.path.dirname(fullPath)
+
+        if not os.path.isdir(dirPath):
+            os.makedirs(dirPath)
+
+        return fullPath
 
     @classmethod
     def callAppMain(cls, main, *args):
