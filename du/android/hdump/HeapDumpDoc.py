@@ -135,10 +135,10 @@ class HeapDumpDoc:
         for lineNumber, line in enumerate(lines):
             if line.startswith(self.ZYGOTE_CHILD_ID):
                 allocRecord = self._parseAllocationRecord(line)
-                if allocRecord:
-                    self._allocationRecords.append(allocRecord)
-                else:
-                    logger.warning('Error parsing allocation record: %r' % line)
+                if not allocRecord:
+                    raise RuntimeError('Error parsing allocation record: %r' % line)
+
+                self._allocationRecords.append(allocRecord)
 
             elif line == self.MAPS_START:
                 if mapsStarted:
@@ -151,10 +151,10 @@ class HeapDumpDoc:
                     raise RuntimeError('Maps not started')
 
                 pidMap = self._parsePidMap(line)
-                if pidMap:
-                    self._pidMaps.append(pidMap)
-                else:
-                    logger.warning('Error parsing pid map: %r' % line)
+                if not pidMap:
+                    raise RuntimeError('Error parsing pid map: %r' % line)
+
+                self._pidMaps.append(pidMap)
 
             elif line == self.MAPS_END:
                 if not mapsStarted:

@@ -1,6 +1,8 @@
 from collections import namedtuple
 import logging
 import symbol
+import sys
+import time
 
 from du.android.hdump.HeapDumpDoc import HeapDumpDoc
 from du.android.hdump.SymbolResolver import SymbolResolver
@@ -68,10 +70,11 @@ ProcessedStacks = namedtuple('ResolvedSymbols', 'zygoteStacks, appStacks, frameM
 Stack = namedtuple('Stack', 'size, numAllocations, frames')
 
 class HeapDump:
-    def __init__(self, string, symbolResolver):
+    def __init__(self, string, symbolDirs=None):
         self._doc = HeapDumpDoc(string)
+        print(len(self._doc.pidMaps))
 
-        res = self._processStacks(self._doc, symbolResolver)
+        res = self._processStacks(self._doc, SymbolResolver(symbolDirs))
 
         self._zygoteTree = self._buildTree(res.zygoteStacks)
         self._appTree = self._buildTree(res.appStacks)
@@ -97,7 +100,6 @@ class HeapDump:
 
         zygoteStacks = []
         appStacks = []
-
         for record in doc.allocationRecords:
             frameStack = []
             # Resolve each frame in backtrace
@@ -109,7 +111,7 @@ class HeapDump:
                     # Find address mapping
                     pm = None
                     for i in doc.pidMaps:
-                        if frameAddress in range(i.startAddress, i.endAddress):
+                        if frameAddress >= i.startAddress and frameAddress <= i.endAddress:
                             pm = i
                             break
                     if not pm:
@@ -124,13 +126,11 @@ class HeapDump:
 
                 frameStack.append(stackFrame)
 
-
             frameStack = Stack(record.size, record.number, frameStack)
             if record.zygoteChild:
                 appStacks.append(frameStack)
             else:
                 zygoteStacks.append(frameStack)
-
         return ProcessedStacks(zygoteStacks, appStacks, stackFrameMap)
 
     @property

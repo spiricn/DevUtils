@@ -16,9 +16,9 @@ class SymbolResolver:
     def __init__(self, directories):
         self._libraries = {}
 
-        directories = [i for i in directories if i]
-
         if directories:
+            directories = [i for i in directories if i]
+
             logger.debug('scanning %d directories ..' % len(directories))
 
             for directory in directories:

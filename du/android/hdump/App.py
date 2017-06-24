@@ -3,7 +3,6 @@ import logging
 import sys
 
 from du.android.hdump.HeapDump import HeapDump
-from du.android.hdump.SymbolResolver import SymbolResolver
 from du.android.hdump.renderer.HtmlRenderer import HtmlRenderer
 from du.android.hdump.renderer.PlainTextRenderer import PlainTextRenderer
 
@@ -26,9 +25,7 @@ def main():
     with open(args.dumpFile, 'r') as fileObj:
         heapDumpString = fileObj.read()
 
-    resolver = SymbolResolver([args.symbolsDir])
-
-    heapDump = HeapDump(heapDumpString, resolver)
+    heapDump = HeapDump(heapDumpString, [args.symbolsDir])
 
     renderers = {
         args.plainOutput : PlainTextRenderer,
