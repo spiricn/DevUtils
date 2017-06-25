@@ -1,5 +1,8 @@
 from PyQt4 import QtGui
-from du.android.hdump.renderer.qt.MainWindow import MainWindow
+from du.android.hdump.HeapDump import HeapDump
+from du.android.hdump.HeapDumpDiff import HeapDumpDiff
+from du.android.hdump.renderer.qt.DiffViewer import DiffViewer
+from du.android.hdump.renderer.qt.HeapViewer import HeapViewer
 
 
 class QtRenderer:
@@ -9,6 +12,12 @@ class QtRenderer:
     @classmethod
     def render(cls, renderObj):
         app = QtGui.QApplication([])
-        window = MainWindow(renderObj)
+        if isinstance(renderObj, HeapDumpDiff):
+            window = DiffViewer(renderObj)
+        elif isinstance(renderObj, HeapDump):
+            window = HeapViewer(renderObj)
+        else:
+            raise NotImplementedError()
+
         app.exec_()
 
