@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Native Heap Dump Viewer</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -25,6 +25,11 @@
       <column>
        <property name="text">
         <string>Size</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Percentage</string>
        </property>
       </column>
       <column>

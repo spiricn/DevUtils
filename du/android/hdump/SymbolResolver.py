@@ -19,24 +19,14 @@ class SymbolResolver:
         if directories:
             directories = [i for i in directories if i]
 
-            logger.debug('scanning %d directories ..' % len(directories))
-
             for directory in directories:
-                logger.debug('scanning %r ..' % directory)
-
                 for root, dirs, files in os.walk(directory):
                     for fileName in files:
                         if os.path.splitext(fileName)[1] == '.so':
                             fullPath = os.path.abspath(os.path.join(root, fileName))
                             name = os.path.basename(fileName)
 
-                            if name in self._libraries:
-                                logger.warning('duplicate library found: %r' % name)
-
                             self._libraries[name] = fullPath
-
-        logger.debug('libraries found: %d' % len(self._libraries))
-
 
     def resolve(self, library, address):
         libraryName = os.path.basename(library)

@@ -72,7 +72,6 @@ Stack = namedtuple('Stack', 'size, numAllocations, frames')
 class HeapDump:
     def __init__(self, string, symbolDirs=None):
         self._doc = HeapDumpDoc(string)
-        print(len(self._doc.pidMaps))
 
         res = self._processStacks(self._doc, SymbolResolver(symbolDirs))
 
@@ -85,7 +84,6 @@ class HeapDump:
 
     @classmethod
     def _buildTree(cls, frameStacks):
-        logger.debug('building tree ..')
         rootNode = Node()
         for frameStack in frameStacks:
             rootNode.addStack(frameStack.size, frameStack.frames)
@@ -95,8 +93,6 @@ class HeapDump:
     def _processStacks(cls, doc, resolver):
         # Mapping of offsetAddress to Symbol
         stackFrameMap = {}
-
-        logger.debug('resolving symbols ..')
 
         zygoteStacks = []
         appStacks = []

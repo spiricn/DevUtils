@@ -1,6 +1,9 @@
 main() {
-
     set -eu
+
+    pushd du/android/hdump/renderer/qt
+    ./convert_ui.sh
+    popd
 
     local app_name=$1
 

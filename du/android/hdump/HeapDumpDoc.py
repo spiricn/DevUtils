@@ -88,7 +88,7 @@ class HeapDumpDoc:
 
         address = tokens[0]
         if len(address) != 8 * 2 + 1:
-            logger.warning('Invalid address format: %r' % address)
+            logger.error('Invalid address format: %r' % address)
             return None
 
         startAddress, endAddress = [int(i, 16) for i in address.split('-')]
