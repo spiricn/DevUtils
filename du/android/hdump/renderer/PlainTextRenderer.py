@@ -1,6 +1,7 @@
 import os
 
-from du.Utils import getHumanReadableSize
+from du.android.hdump.HeapDump import HeapDump
+from du.android.hdump.HeapDumpDiff import HeapDumpDiff, DiffNode
 from du.android.hdump.renderer.BaseRenderer import BaseRenderer
 
 
@@ -9,22 +10,44 @@ class PlainTextRenderer(BaseRenderer):
         BaseRenderer.__init__(self)
 
 
-    def render(self, stream, heapDump):
+    def render(self, stream, renderObj):
         self._stream = stream
 
-        self._stream.write('Total memory: %s\n\n' % getHumanReadableSize(heapDump.doc.totalMemory))
+        if isinstance(renderObj, HeapDump) or isinstance(renderObj, HeapDumpDiff):
+            nodes = (('Zygote', renderObj.zygoteRootNode), ('App', renderObj.appRootNode))
 
-        nodes = (('Zygote', heapDump.zygoteRootNode), ('App', heapDump.appRootNode))
+            for nodeName, node in nodes:
+                self._stream.write('#' * 80 + '\n')
+                self._stream.write('%s\n\n' % nodeName)
 
-        for nodeName, node in nodes:
-            self._stream.write('#' * 80 + '\n')
-            self._stream.write('%s\n\n' % nodeName)
-            self._renderNode(0, node)
+                if isinstance(renderObj, HeapDump) :
+                    self._renderTree(0, node)
+                else:
+                    self._renderDiff(0, node)
 
-    def _renderNode(self, indent, node):
+        else:
+            raise NotImplementedError()
+
+    def _renderDiff(self, indent, node):
+        typeMap = {
+            DiffNode.TYPE_CHANGED : 'M',
+            DiffNode.TYPE_REMOVED : 'D',
+            DiffNode.TYPE_ADDED : 'A',
+            DiffNode.TYPE_EQUAL : '',
+        }
+
+        if node.frame:
+            self._stream.write('.' * indent)
+
+            self._stream.write(typeMap[node.type] + ' ' + os.path.basename(node.frame.library) + ' ' + node.frame.symbol.file + ' ' + node.frame.symbol.function + ':' + str(node.frame.symbol.line) + '\n')
+
+        for child in sorted(node.children, key=lambda child: child.size, reverse=True):
+            self._renderDiff(indent + 1, child)
+
+    def _renderTree(self, indent, node):
         if node.frame:
             self._stream.write('.' * indent)
             self._stream.write(os.path.basename(node.frame.library) + ' ' + node.frame.symbol.file + ' ' + node.frame.symbol.function + ':' + str(node.frame.symbol.line) + '\n')
 
         for child in sorted(node.children, key=lambda child: child.size, reverse=True):
-            self._renderNode(indent + 1, child)
+            self._renderTree(indent + 1, child)

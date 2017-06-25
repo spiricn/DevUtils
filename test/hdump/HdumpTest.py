@@ -8,9 +8,18 @@ class HdumpTest(TestBase):
 
     def testHdump(self):
         res = self.callAppMain(hdumpMain,
-           'hdump/heap_dump.txt',
-           '-plainOutput', self.getTempPath('hdump/dump.txt'),
-           '-htmlOutput', self.getTempPath('hdump/dump.html'),
+           '-dump_files', 'hdump/heap_dump1.txt',
+           '-plain_output', self.getTempPath('hdump/dump.txt'),
+           '-html_output', self.getTempPath('hdump/dump.html'),
+        )
+
+        self.assertEqual(0, res)
+
+    def testHdumpDiff(self):
+        res = self.callAppMain(hdumpMain,
+           '-dump_files', 'hdump/heap_dump1.txt', 'hdump/heap_dump2.txt',
+           '-plain_output', self.getTempPath('hdump/dump_diff.txt'),
+           '-html_output', self.getTempPath('hdump/dump_diff.html'),
         )
 
         self.assertEqual(0, res)

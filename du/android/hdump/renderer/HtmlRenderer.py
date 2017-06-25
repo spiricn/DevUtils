@@ -1,6 +1,9 @@
 import os
 
+from du.android.hdump.HeapDump import HeapDump
+from du.android.hdump.HeapDumpDiff import HeapDumpDiff
 from du.android.hdump.renderer.BaseRenderer import BaseRenderer
+
 
 htmlBase = '''\
 <html>
@@ -136,27 +139,32 @@ class HtmlRenderer(BaseRenderer):
         BaseRenderer.__init__(self)
 
 
-    def render(self, stream, heapDump):
-        self._stream = stream
+    def render(self, stream, renderObj):
+        if isinstance(renderObj, HeapDump) or isinstance(renderObj, HeapDumpDiff):
+            heapDump = renderObj
 
-        self._stream.write(htmlBase)
+            self._stream = stream
 
-        nodes = (('Zygote', heapDump.zygoteRootNode), ('App', heapDump.appRootNode))
+            self._stream.write(htmlBase)
 
-        self._idCounter = 0
+            nodes = (('Zygote', heapDump.zygoteRootNode), ('App', heapDump.appRootNode))
 
-        for nodeName, node in nodes:
-            self._stream.write('<div class="css-treeview">\n')
+            self._idCounter = 0
 
-            self._stream.write('<ul>\n')
+            for nodeName, node in nodes:
+                self._stream.write('<div class="css-treeview">\n')
 
-            self._renderNode(nodeName, 0, node)
+                self._stream.write('<ul>\n')
 
-            self._stream.write('</ul>\n')
+                self._renderNode(nodeName, 0, node)
 
-            self._stream.write('</div>\n')
+                self._stream.write('</ul>\n')
 
-        self._stream.write('</body></html>')
+                self._stream.write('</div>\n')
+
+            self._stream.write('</body></html>')
+        else:
+            raise NotImplementedError()
 
     def _renderNode(self, rootName, indent, node):
         if node.frame:

@@ -7,8 +7,8 @@ class QtRenderer:
         pass
 
     @classmethod
-    def render(cls, heapDump):
+    def render(cls, renderObj):
         app = QtGui.QApplication([])
-        window = MainWindow(heapDump)
+        window = MainWindow(renderObj)
         app.exec_()
 

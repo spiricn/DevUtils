@@ -32,6 +32,7 @@ class TestBase(unittest.TestCase):
         oldCwd = os.getcwd()
         os.chdir(os.path.dirname(__file__))
 
+        print(sys.argv)
         exception = None
         try:
             res = main()

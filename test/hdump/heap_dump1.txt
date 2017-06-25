@@ -2451,14 +2451,6 @@ z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b58fe2ec b58f93d0 b58f9df0 b5ac
 z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c86322 b5c68b26
 z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86500 71a4a7fc
 z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86508 71a4a7fc
-z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86510 71a4a7fc
-z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86518 71a4a7fc
-z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86520 71a4a7fc
-z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86528 71a4a7fc
-z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86530 71a4a7fc
-z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86538 71a4a7fc
-z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86540 71a4a7fc
-z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86548 71a4a7fc
 z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86550 71a4a7fc
 z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86558 71a4a7fc
 z 0  sz       12  num    1  bt b4d96a7c b6d3e7f0 b5c864b6 b5c86582 71a4a7fc

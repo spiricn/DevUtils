@@ -1,8 +1,6 @@
 from collections import namedtuple
 import logging
 import symbol
-import sys
-import time
 
 from du.android.hdump.HeapDumpDoc import HeapDumpDoc
 from du.android.hdump.SymbolResolver import SymbolResolver
@@ -49,6 +47,17 @@ class Node:
     @property
     def frame(self):
         return self._frame
+
+    def findChild(self, address, recursive=False):
+        if address in self._children:
+            return self._children[address]
+        elif recursive:
+            for child in self.children:
+                res = child.findChild(address, True)
+                if res:
+                    return res
+
+        return None
 
     @property
     def children(self):
