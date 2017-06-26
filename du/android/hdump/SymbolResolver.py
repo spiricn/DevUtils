@@ -48,6 +48,8 @@ class SymbolResolver:
 
         file, line = lines[1].split(':')
 
+        line = int(line.split(' ')[0])
+
         return Symbol(file, function, line)
 
 

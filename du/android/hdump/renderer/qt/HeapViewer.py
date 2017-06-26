@@ -33,7 +33,9 @@ class HeapViewer(QtGui.QMainWindow, Ui_MainWindow):
             item.setText(0, os.path.basename(node.frame.library))
 
             if node.frame.symbol != SymbolResolver.UNKOWN_SYMBOL:
-                item.setText(3, str(node.frame.symbol))
+                symbol = '[%s] %s:%d' % (os.path.basename(node.frame.symbol.file), node.frame.symbol.function, node.frame.symbol.line)
+
+                item.setText(3, symbol)
 
         item.setText(1, str(node.size))
         item.setText(2, ' %.2f %%' % ((float(node.size) / float(self._rootSize)) * 100))
