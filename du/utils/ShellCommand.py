@@ -70,7 +70,7 @@ class ShellCommand:
             message += 'Command failed\n'
             message += '\tcommand: %r\n' % ' '.join(self._command)
             message += '\tcode: %d\n' % self.rc
-            message += self._stderrStr
+            message += self.stderrStr
 
             raise RuntimeError(message)
 
