@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__.split('.')[-1])
 class ReleaseNoteGenerator:
     def __init__(self, manifest):
         self._manifest = manifest
-        self._sf = ShellFactory(raiseOnError=True, commandOutput=False)
+        self._sf = ShellFactory(raiseOnError=True, commandOutput=True)
 
     def run(self, outputFile, writer=ReleaseNotesHtmlWriter):
         writer = writer(self._manifest)
