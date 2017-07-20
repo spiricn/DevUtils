@@ -22,7 +22,9 @@ class GccProcessor(BaseProcessor):
                   ': multiple definition',
                   ': cannot find',
                   '*** No rule to make target',
-                  'LOCAL_MODULE is not defined.'
+                  'LOCAL_MODULE is not defined.',
+                  'FAILURE:',
+                  'FAILED',
         ]
 
         infoStrings = [
@@ -33,11 +35,12 @@ class GccProcessor(BaseProcessor):
             'In function',
             ': first defined here',
             'make: Entering directory',
-            'make: Leaving directory'
+            'make: Leaving directory',
         ]
 
         warningStrings = [
             'warning:',
+            'WARNING:',
         ]
 
         importantStrings = [
