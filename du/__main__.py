@@ -7,6 +7,7 @@ from du.ctee.App import main as cteeMain
 from du.drepo.App import main as drepoMain
 from du.drepo.GerritApp import main as gerritMain
 from du.smartpush.App import main as smartpushMain
+from du.logan.App import main as loganMain
 
 
 def main():
@@ -18,6 +19,7 @@ def main():
         'gerrit' : gerritMain,
         'cgen' : cgenMain,
         'hdump' : hdumpMain,
+        'logan' : loganMain,
     }
 
     if len(sys.argv) < 2 or sys.argv[1] in ['--help', 'help', '--h']:
