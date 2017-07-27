@@ -48,7 +48,10 @@ class SymbolResolver:
 
         file, line = lines[1].split(':')
 
-        line = int(line.split(' ')[0])
+        try:
+            line = int(line.split(' ')[0])
+        except ValueError:
+            line = -1
 
         return Symbol(file, function, line)
 
