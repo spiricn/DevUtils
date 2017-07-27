@@ -28,8 +28,11 @@ class HeapDumpDoc:
     SIZE_ID = 'sz'
     NUMBER_ID = 'num'
     BACKTRACE_ID = 'bt'
+    WARNING_PREFIX = 'WARNING: '
 
     def __init__(self, string):
+        self._warnings = []
+
         self._parseString(string)
 
     @property
@@ -124,8 +127,13 @@ class HeapDumpDoc:
         self._numAllocationRecords = int(lines.pop(0).split(':')[1])
 
         # Empty line
-        if len(lines.pop(0)):
-            raise RuntimeError('Unexpected token')
+        while lines:
+            line = lines.pop(0)
+
+            if not line:
+                break
+            elif line.startswith(self.WARNING_PREFIX):
+                self._warnings.append(line.split(self.WARNING_PREFIX)[1])
 
         self._allocationRecords = []
         self._pidMaps = []
