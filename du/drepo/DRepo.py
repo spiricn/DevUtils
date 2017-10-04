@@ -35,7 +35,7 @@ class DRepo:
 
             # Fetch
             logger.debug('fetching %r' % project.name)
-            self._sf.spawn(['git', 'fetch'], cwd=projAbsPath)
+            self._sf.spawn(['git', 'fetch', '--tags'], cwd=projAbsPath)
 
             # Clean
             if OPT_CLEAN in project.opts:
