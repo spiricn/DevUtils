@@ -8,7 +8,7 @@ class ReleaseNotesWriterBase:
     def start(self, manifest):
         raise NotImplementedError()
 
-    def startProject(self, proj):
+    def startProject(self, proj, tag):
         raise NotImplementedError()
 
     def endProject(self):
@@ -35,7 +35,7 @@ class ReleaseNotesTextWriter(ReleaseNotesWriterBase):
     def start(self):
         pass
 
-    def startProject(self, proj):
+    def startProject(self, proj, tag):
         self.write(proj.url + '\n')
 
     def endProject(self):
@@ -89,7 +89,7 @@ class ReleaseNotesHtmlWriter(ReleaseNotesWriterBase):
 
         self.write('</table>')
 
-    def startProject(self, proj):
+    def startProject(self, proj, tag):
         self._proj = proj
         self._remoteHttpUrl = 'http://' + self._proj.remote.server
 
@@ -100,7 +100,13 @@ class ReleaseNotesHtmlWriter(ReleaseNotesWriterBase):
 
         self.write('<h3>')
         self.write('<a name="%s" href="%s" target="_blank">%s</a>' % (proj.name, projLink, proj.name))
-        self.write(' ( <a href="%s" target="_blank">%s</a> )' % (branchLink, proj.branch))
+
+        tagInfo = ''
+
+        if tag:
+            tagInfo = '%s %s' % (tag.name, tag.hash)
+
+        self.write(' ( <a href="%s" target="_blank">%s</a> %s)' % (branchLink, proj.branch, tagInfo))
         self.write('</h3>')
 
         self.write('<table>')

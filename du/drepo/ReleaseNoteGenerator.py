@@ -22,11 +22,18 @@ class ReleaseNoteGenerator:
         for proj in self._manifest.projects:
             logger.debug('processing %r ..' % proj.name)
 
-            writer.startProject(proj)
+            localDir = os.path.join(self._manifest.root, proj.path)
+
+            projectTag = None
+
+            try:
+                projectTag = Git.getTag(proj.path)
+            except Exception as e:
+                logger.warn('Could not get project tag: %s' % str(e))
+
+            writer.startProject(proj, projectTag)
 
             gr = Gerrit(proj.remote.username, proj.remote.port, proj.remote.server, self._sf)
-
-            localDir = os.path.join(self._manifest.root, proj.path)
 
             # Get commit log of the project
             log = Git.getLog(localDir)[:-1]

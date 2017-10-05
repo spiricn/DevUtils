@@ -6,6 +6,8 @@ from du.Utils import shellCommand
 LogItem = namedtuple('LogItem', 'hash, title')
 gerritChangeIdRegex = re.compile(r'^Change-Id: (I[a-fA-F0-9]+)$')
 
+Tag = namedtuple('Tag', 'hash, name')
+
 class Change:
     def __init__(self, arg):
         if isinstance(arg, int):
@@ -20,6 +22,22 @@ class Change:
 
     def __str__(self):
         return '<Change: number=%d%s>' % (self.number, ' ps=%d' % self.ps if self.ps != None else '')
+
+def getTag(repo):
+    # Get the tag ID
+    cmdRes = shellCommand(['git', '-C', repo, 'rev-parse', 'HEAD'])
+    if cmdRes.rc != 0:
+        raise RuntimeError('Command failed (%d): %r' % (cmdRes.rc, cmdRes.strStderr))
+    tagHash = cmdRes.strStdout.rstrip()
+
+    # Get tag name
+    cmdRes = shellCommand(['git', '-C', repo, 'describe', '--exact-match', '--tags', tagHash])
+    if cmdRes.rc != 0:
+        return None
+
+    tagName = cmdRes.strStdout
+
+    return Tag(tagHash, tagName)
 
 def getLog(repo):
     cmdRes = shellCommand(['git', '-C', repo, 'log', '--pretty=oneline'])
