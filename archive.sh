@@ -24,8 +24,8 @@ main() {
 
     chmod a+x $app_name
 
-    rm -r $dir
-    rm $archive
+    rm -rv $dir
+    rm -v $archive
 
     echo "`pwd`/$app_name"
 

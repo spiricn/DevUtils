@@ -5,11 +5,16 @@ main() {
     local scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     local uiDir=$scriptDir/ui
 
-    local oldFiles=`ls ${uiDir}/*.py | grep -v __init__.py`
+    if [ -z "`which pyuic4`" ]; then
+        echo "No pyuic4 installed, skipping .."
+        return 0
+    fi
+
+    local oldFiles=`ls ${uiDir}/*.py 2>/dev/null | grep -v __init__.py`
 
     echo "Cleaning up old files: ${oldFiles}"
 
-    rm -v ${oldFiles}
+    rm -fv ${oldFiles}
 
     local uiFiles=`ls ${uiDir}/*.ui`
 
