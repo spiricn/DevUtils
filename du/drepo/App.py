@@ -25,8 +25,17 @@ def main():
     parser.add_argument('-sync', action='store_true',
                         help='if provided, drepo will syncrhonize source code'
                         )
+    parser.add_argument('-build')
 
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
+
+    manifestArgs = {}
+    for i in unknown:
+        tokens = i.split('=')
+        if len(tokens) == 2:
+            key, value = tokens
+            logger.debug('adding arg: %r = %r' % (key, value))
+            manifestArgs[key] = value
 
     if args.manifest_file and args.manifest_source:
         logger.error('arguments -manifest_file and -manifest_source are mutually exclusive')
@@ -45,7 +54,7 @@ def main():
     logger.debug('parsing manifest ..')
 
     try:
-        manifest = Manifest(manifestSource)
+        manifest = Manifest(manifestSource, buildName=args.build, args=manifestArgs)
     except:
         traceback.print_exc(file=sys.stdout)
         logger.error('-----------------------------------')

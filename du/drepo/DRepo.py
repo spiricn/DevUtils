@@ -28,7 +28,7 @@ class DRepo:
 
                 self._sf.spawn(['git', 'init'], projAbsPath)
                 self._sf.spawn(['git', 'remote', 'add', 'origin', project.url], projAbsPath)
-                self._sf.spawn(['git', 'pull', 'origin', 'master'], projAbsPath)
+                self._sf.spawn(['git', 'pull', 'origin', project.branch], projAbsPath)
 
             # Make sure GIT doesn't attempt to create merge commits
             self._sf.spawn(['git', 'config', 'pull.ff', 'only'], projAbsPath)
@@ -60,7 +60,8 @@ class DRepo:
 
                 ref = gr.getPatchset(finalTouch.number, finalTouch.ps)['ref']
 
-                self._sf.spawn(['git', 'pull', 'origin', ref], cwd=projAbsPath)
+                self._sf.spawn(['git', 'fetch', 'origin', ref], cwd=projAbsPath)
+                self._sf.spawn(['git', 'checkout', 'FETCH_HEAD'], cwd=projAbsPath)
 
             # Download cherry picks
             cherryPicks = self._manifest.build.cherrypicks[project.name] if project.name in self._manifest.build.cherrypicks else []

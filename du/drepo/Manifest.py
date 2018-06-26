@@ -55,6 +55,7 @@ PROJECT_PATH_KEY = 'path'
 PROJECT_BRANCH_KEY = 'branch'
 TAGS_KEY = 'tags'
 CHERRY_PICKS_KEY = 'cherrypicks'
+PROJECT_NAME_KEY = 'name'
 FINAL_TOUCHES_KEY = 'final_touches'
 PROJECT_OPTS_KEY = 'opts'
 BUILDS_VAR_NAME = 'builds'
@@ -64,19 +65,23 @@ ROOT_VAR_NAME = 'root'
 logger = logging.getLogger(__name__.split('.')[-1])
 
 class Manifest:
-    def __init__(self, code):
+    def __init__(self, code, buildName=None, args={}):
         self._locals = {
             'OPT_CLEAN' : OPT_CLEAN,
             'OPT_RESET' : OPT_RESET,
+            'drepo_include' : self.include,
+            'drepo_getArg' : self.getArg,
         }
 
+        self._args = args
         exec(code, self._locals)
 
         self._builds = []
 
         self._build = None
 
-        buildName = self.get(BUILD_VAR_NAME)
+        if not buildName:
+            buildName = self.get(BUILD_VAR_NAME)
 
         for name, desc in self.get(BUILDS_VAR_NAME).items():
             root = desc[ROOT_VAR_NAME]
@@ -122,7 +127,9 @@ class Manifest:
 
         # Parse projects
         self._projects = []
-        for name, desc in self.get(PROJECTS_VAR_NAME).items():
+        for desc in self.get(PROJECTS_VAR_NAME):
+            name = desc[PROJECT_NAME_KEY]
+
             remoteName = desc[PROJECT_REMOTE_KEY]
 
             remote = None
@@ -211,3 +218,13 @@ class Manifest:
         manifestXml += '</manifest>'
 
         return manifestXml
+
+    def getArg(self, name):
+        return self._args[name] if name in self._args else None
+
+    def include(self, path):
+        logger.debug('including %r' % path)
+
+        with open(path, 'rb') as fileObj:
+            code = fileObj.read()
+            exec(code, self._locals)

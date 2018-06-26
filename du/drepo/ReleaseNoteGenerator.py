@@ -24,12 +24,7 @@ class ReleaseNoteGenerator:
 
             localDir = os.path.join(self._manifest.root, proj.path)
 
-            projectTag = None
-
-            try:
-                projectTag = Git.getTag(proj.path)
-            except Exception as e:
-                logger.warn('Could not get project tag: %s' % str(e))
+            projectTag = Git.getTag(proj.path)
 
             writer.startProject(proj, projectTag)
 
