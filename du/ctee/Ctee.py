@@ -49,10 +49,10 @@ class Ctee:
         stream.flush()
 
     def _mainLoop(self):
-        try:
-            for output in self._outputs:
-                self._write(output.stream, output.transformer.getHeader())
+        for output in self._outputs:
+            self._write(output.stream, output.transformer.getHeader())
 
+        try:
             while self._running:
                 line = self._input.stream.readline()
                 if not line:
@@ -76,9 +76,10 @@ class Ctee:
 
             for output in self._outputs:
                 self._write(output.stream, output.transformer.getTrailer())
-
         except (IOError, ValueError):
             pass
+
+
 
         self._running = False
         self._sema.release()

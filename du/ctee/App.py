@@ -1,6 +1,7 @@
 import argparse
 import signal
 import sys
+import codecs
 
 from du.ctee.Ctee import Ctee
 from du.ctee.processors.GccProcessor import GccProcessor
@@ -55,9 +56,9 @@ def main():
     inputStream = None
 
     if args.input == '-':
-        inputStream = sys.stdin
+        inputStream = codecs.getreader(sys.stdin.encoding)(sys.stdin.buffer, errors='replace')
     elif args.input:
-        inputStream = open(args.input, 'rb')
+        inputStream = open(args.input, 'r', encoding='utf-8', errors='replace')
     else:
         print('input not provided')
         return -1
@@ -80,7 +81,7 @@ def main():
             if outputStream == '-':
                 outputStream = sys.stdout
             else:
-                outputStream = open(outputStream, 'w')
+                outputStream = open(outputStream, 'w', encoding='utf-8', errors='ignore')
 
             if outputTransformerName in TRANSFORMER_MAP:
                 transformer = TRANSFORMER_MAP[outputTransformerName]()
