@@ -7,58 +7,59 @@ class GccProcessor(BaseProcessor):
 
     @staticmethod
     def getDefaultStylesheet():
-        return '''\
+        return """\
 {
 'error' : Style(Color.RED, bold=True),
 'warning' : Style(Color.YELLOW, bold=True),
 'info' : Style(Color.CYAN, bold=True),
 'important' : Style(fgColor=Color.WHITE, bgColor=Color.BLUE, bold=True, underline=True),
-}'''
+}"""
 
     def getStyle(self, line):
-        errorStrings = [': No such file or directory',
-                  'error:',
-                  'fatal:',
-                  ': multiple definition',
-                  ': cannot find',
-                  '*** No rule to make target',
-                  'LOCAL_MODULE is not defined.',
-                  'FAILURE:',
-                  'FAILED',
+        errorStrings = [
+            ": No such file or directory",
+            "error:",
+            "fatal:",
+            ": multiple definition",
+            ": cannot find",
+            "*** No rule to make target",
+            "LOCAL_MODULE is not defined.",
+            "FAILURE:",
+            "FAILED",
         ]
 
         infoStrings = [
-            'note:',
-            'required from',
-            'In instantiation of',
-            'In member',
-            'In function',
-            ': first defined here',
-            'make: Entering directory',
-            'make: Leaving directory',
+            "note:",
+            "required from",
+            "In instantiation of",
+            "In member",
+            "In function",
+            ": first defined here",
+            "make: Entering directory",
+            "make: Leaving directory",
         ]
 
         warningStrings = [
-            'warning:',
-            'WARNING:',
+            "warning:",
+            "WARNING:",
         ]
 
         importantStrings = [
             # .so, .apk
-            'Install: ',
+            "Install: ",
             # .a
-            'target StaticLib: ',
+            "target StaticLib: ",
             # .jack
-            'Building with Jack: ',
+            "Building with Jack: ",
             # .jar
-            'target Static Jar: '
+            "target Static Jar: ",
         ]
 
         data = (
-            (self.stylesheet['error'], errorStrings),
-            (self.stylesheet['info'], infoStrings),
-            (self.stylesheet['warning'], warningStrings),
-            (self.stylesheet['important'], importantStrings),
+            (self.stylesheet["error"], errorStrings),
+            (self.stylesheet["info"], infoStrings),
+            (self.stylesheet["warning"], warningStrings),
+            (self.stylesheet["important"], importantStrings),
         )
 
         for style, strings in data:

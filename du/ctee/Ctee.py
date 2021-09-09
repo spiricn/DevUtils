@@ -3,8 +3,8 @@ from threading import Thread, Semaphore
 
 
 class Ctee:
-    Input = namedtuple('Input', 'stream, processor')
-    Output = namedtuple('Input', 'stream, transformer')
+    Input = namedtuple("Input", "stream, processor")
+    Output = namedtuple("Input", "stream, transformer")
 
     def __init__(self):
         self._input = None
@@ -15,19 +15,19 @@ class Ctee:
 
     def setInput(self, stream, processor):
         if self._running:
-            raise RuntimeError('Ctee running')
+            raise RuntimeError("Ctee running")
 
         self._input = Ctee.Input(stream, processor)
 
     def addOutput(self, stream, transformer):
         if self._running:
-            raise RuntimeError('Ctee running')
+            raise RuntimeError("Ctee running")
 
         self._outputs.append(Ctee.Output(stream, transformer))
 
     def start(self):
         if self._running:
-            raise RuntimeError('Ctee running')
+            raise RuntimeError("Ctee running")
 
         self._running = True
         self._thread = Thread(target=self._mainLoop)
@@ -49,10 +49,10 @@ class Ctee:
         stream.flush()
 
     def _mainLoop(self):
-        for output in self._outputs:
-            self._write(output.stream, output.transformer.getHeader())
-
         try:
+            for output in self._outputs:
+                self._write(output.stream, output.transformer.getHeader())
+
             while self._running:
                 line = self._input.stream.readline()
                 if not line:
@@ -62,24 +62,23 @@ class Ctee:
 
                 chunks = self._input.processor.getStyle(line)
 
-                self._write(output.stream, output.transformer.onLineStart())
-
                 for output in self._outputs:
+                    self._write(output.stream, output.transformer.onLineStart())
+
                     for chunk, style in chunks:
                         transformedChunk = output.transformer.transform(chunk, style)
 
                         self._write(output.stream, transformedChunk)
 
-                    self._write(output.stream, '\n')
+                    self._write(output.stream, "\n")
 
-                self._write(output.stream, output.transformer.onLineEnd())
+                    self._write(output.stream, output.transformer.onLineEnd())
 
             for output in self._outputs:
                 self._write(output.stream, output.transformer.getTrailer())
+
         except (IOError, ValueError):
             pass
-
-
 
         self._running = False
         self._sema.release()

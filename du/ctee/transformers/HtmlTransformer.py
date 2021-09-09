@@ -1,26 +1,37 @@
 from du.ctee.Color import Color
 from du.ctee.transformers.BaseTransformer import BaseTransformer
+import html
 
 
 class HtmlTransformer(BaseTransformer):
     COLOR_TO_STYLE_MAP = {
-        Color.RED : '#f00',
-        Color.GREEN : '#0f0',
-        Color.BLUE : 'blue',
-        Color.YELLOW: '#ff0',
-        Color.CYAN : '#0ff',
-        Color.MAGENTA : 'magenta',
-        Color.WHITE : 'white',
-        Color.BLACK : 'black',
+        Color.RED: "rgb(195, 96, 44)",
+        Color.GREEN: "rgb(78, 201, 176)",
+        Color.BLUE: "blue",
+        Color.YELLOW: "rgb(220, 220, 170)",
+        Color.CYAN: "rgb(86, 156, 214)",
+        Color.MAGENTA: "magenta",
+        Color.WHITE: "rgb(212, 212, 212)",
+        Color.BLACK: "rgb(30, 30, 30)",
     }
 
     def __init__(self):
         BaseTransformer.__init__(self)
 
     def getHeader(self):
-        css = '''\
+        res = """
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+
+<title> Log </title>
+
+<style>
 body {
-    background-color:black
+    background-color:rgb(30, 30, 30)
 }
 
 p {
@@ -30,27 +41,24 @@ p {
     font-family: monospace;
     font-weight: bold;
 }
-'''
-        res = ''
+</style>
+</head>
 
+<body>
 
-        res += '<html><head>'
-
-        res += '<style>'
-        res += css
-        res += '</style></head>'
+"""
 
         return res
 
     def onLineStart(self):
-        return '<p>'
+        return "<p>"
 
     def onLineEnd(self):
-        return '</p>'
+        return "</p>"
 
     def transform(self, line, style):
-        color = 'white'
-        background = 'black'
+        color = "white"
+        background = "rgb(30, 30, 30)"
 
         if style:
             if style.fgColor in self.COLOR_TO_STYLE_MAP:
@@ -59,9 +67,9 @@ p {
             if style.bgColor in self.COLOR_TO_STYLE_MAP:
                 background = self.COLOR_TO_STYLE_MAP[style.bgColor]
 
-        css = 'color:%s; background-color:%s' % (color, background)
+        css = "color:%s; background-color:%s" % (color, background)
 
-        return '<span style="%s">%s</span>' % (css, line)
+        return '<span style="%s">%s</span>' % (css, html.escape(line))
 
     def getTrailer(self):
-        return '</body></html>'
+        return "</body></html>"

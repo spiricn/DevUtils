@@ -2,45 +2,66 @@ from collections import namedtuple
 import os
 import subprocess
 import tarfile
+import hashlib
 
-
-CommandRes = namedtuple('CommandRes', 'stdout, stderr, rc, strStdout, strStderr')
-
-def getFileTimestamp(path):
-    return os.stat(path).st_mtime
-
-def shellCommand(command):
-    if isinstance(command, str):
-        command = command.split(' ')
-
-    pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    res = pipe.communicate()
-
-    return CommandRes(res[0], res[1], pipe.returncode, str(res[0], 'UTF-8'), str(res[1], 'UTF-8'))
 
 def makeDirTree(path):
+    """
+    Create directory tree if it doesn't exist
+
+    @param path Directory path
+    """
+
     if os.path.exists(path) and os.path.isdir(path):
         return
 
     os.makedirs(path)
 
-def archiveDirectory(archivePath, dirPath):
-    t = tarfile.open(archivePath, mode='w')
 
-    t.add(dirPath, arcname=os.path.basename(dirPath))
-    t.close()
+def getHumanReadableSize(size, decimals=2):
+    """
+    Get human readable size
 
-def getHumanReadableSize(size):
-    KB = 1024
-    MB = KB * KB
-    GB = MB * MB
+    @param size Size
+    @param decimals Number of decimals to display
+    @return human readable size string
+    """
 
-    if size < KB:
-        return '%d B' % size
-    elif size >= KB and size < MB:
-        return '%.2f KB' % (size / KB)
-    elif size >= MB and size < GB:
-        return '%.2f MB' % (size / MB)
-    else:
-        return '%.2f GB' % (size / GB)
+    units = (" bytes", "K", "M", "G", "T", "P")
+
+    k = 1024
+    size = float(size)
+    unitIndex = 0
+
+    while size >= k and unitIndex < len(units) - 1:
+        size /= k
+        unitIndex += 1
+
+    # Conver the size into a string
+    sizeStr = ("{:." + str(decimals) + "f}").format(size)
+
+    # Check if all the decimals are zeros (e.g. 1.000)
+    splitter = sizeStr.find(".")
+    suffix = sizeStr[splitter + 1 :]
+
+    if suffix == "0" * len(suffix):
+        # Trim off the zeroes
+        sizeStr = sizeStr[:splitter]
+
+    return "{}{}".format(sizeStr, units[unitIndex])
+
+
+def generateFileMd5sum(fielPath):
+    """
+    Generate MD5 hex digest from given file
+
+    @param fielPath File path
+    @return md5 checksum
+    """
+
+    md5 = hashlib.md5()
+    with open(fielPath, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            md5.update(chunk)
+
+    return md5.hexdigest()

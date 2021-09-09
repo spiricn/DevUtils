@@ -29,7 +29,10 @@ class DiffViewer(QtGui.QMainWindow, Ui_MainWindow):
     def _display(self):
         self.treeWidget.clear()
 
-        nodes = (('Zygote', self._heapDiff.zygoteRootNode), ('App', self._heapDiff.appRootNode))
+        nodes = (
+            ("Zygote", self._heapDiff.zygoteRootNode),
+            ("App", self._heapDiff.appRootNode),
+        )
         for nodeName, node in nodes:
             self._renderDiff(nodeName, self.treeWidget, node)
 
@@ -37,10 +40,10 @@ class DiffViewer(QtGui.QMainWindow, Ui_MainWindow):
         item = QtGui.QTreeWidgetItem(parentItem)
 
         colorMap = {
-            DiffNode.TYPE_CHANGED : QtGui.QColor(255, 240, 187),
-            DiffNode.TYPE_REMOVED : QtGui.QColor(251, 208, 210),
-            DiffNode.TYPE_ADDED : QtGui.QColor(197, 243, 210),
-            DiffNode.TYPE_EQUAL : QtGui.QBrush(QtCore.Qt.white),
+            DiffNode.TYPE_CHANGED: QtGui.QColor(255, 240, 187),
+            DiffNode.TYPE_REMOVED: QtGui.QColor(251, 208, 210),
+            DiffNode.TYPE_ADDED: QtGui.QColor(197, 243, 210),
+            DiffNode.TYPE_EQUAL: QtGui.QBrush(QtCore.Qt.white),
         }
 
         for i in range(4):
@@ -53,7 +56,11 @@ class DiffViewer(QtGui.QMainWindow, Ui_MainWindow):
             item.setText(0, os.path.basename(node.frame.library))
 
             if node.frame.symbol != SymbolResolver.UNKOWN_SYMBOL:
-                symbol = '[%s] %s:%d' % (os.path.basename(node.frame.symbol.file), node.frame.symbol.function, node.frame.symbol.line)
+                symbol = "[%s] %s:%d" % (
+                    os.path.basename(node.frame.symbol.file),
+                    node.frame.symbol.function,
+                    node.frame.symbol.line,
+                )
 
                 item.setText(3, symbol)
 
@@ -61,4 +68,3 @@ class DiffViewer(QtGui.QMainWindow, Ui_MainWindow):
 
         for child in node.children:
             self._renderDiff(None, item, child)
-

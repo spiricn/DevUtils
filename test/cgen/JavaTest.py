@@ -7,36 +7,51 @@ class CgenJavaTest(TestBase):
         pass
 
     def testNoArgs(self):
-        res = self.callAppMain(cgenMain,
-                              'java',
-                              self.getTempPath('cgen/CgenTestNoArgs.java'),
-                              '-java_package', 'com.cgen.test',
-                              '-java_class', 'CgenTestNoArgs'
+        res = self.callAppMain(
+            cgenMain,
+            "java",
+            self.getTempPath("cgen/CgenTestNoArgs.java"),
+            "-java_package",
+            "com.cgen.test",
+            "-java_class",
+            "CgenTestNoArgs",
         )
         self.assertEqual(0, res)
 
     def testArgs(self):
-        res = self.callAppMain(cgenMain,
-                         'java',
-                         self.getTempPath('cgen/CgenTestArgs.java'),
-                         '-java_package', 'com.cgen.test',
-                         '-java_class', 'CgenTestArgs',
-                         '-args',
-                         'stringArg', 'test',
-                         'intArg', '42',
-                         'boolArg', 'false'
+        res = self.callAppMain(
+            cgenMain,
+            "java",
+            self.getTempPath("cgen/CgenTestArgs.java"),
+            "-java_package",
+            "com.cgen.test",
+            "-java_class",
+            "CgenTestArgs",
+            "-args",
+            "stringArg",
+            "test",
+            "intArg",
+            "42",
+            "boolArg",
+            "false",
         )
         self.assertEqual(0, res)
 
     def testStdout(self):
-        res = self.callAppMain(cgenMain,
-                         'java',
-                         '-',
-                         '-java_package', 'com.cgen.test',
-                         '-java_class', 'CgenTestArgs',
-                         '-args',
-                         'stringArg', 'test',
-                         'intArg', '42',
-                         'boolArg', 'false'
+        res = self.callAppMain(
+            cgenMain,
+            "java",
+            "-",
+            "-java_package",
+            "com.cgen.test",
+            "-java_class",
+            "CgenTestArgs",
+            "-args",
+            "stringArg",
+            "test",
+            "intArg",
+            "42",
+            "boolArg",
+            "false",
         )
         self.assertEqual(0, res)

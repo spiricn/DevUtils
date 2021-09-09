@@ -1,8 +1,5 @@
 class DiffNode:
-    TYPE_ADDED, \
-    TYPE_REMOVED, \
-    TYPE_EQUAL, \
-    TYPE_CHANGED = range(4)
+    TYPE_ADDED, TYPE_REMOVED, TYPE_EQUAL, TYPE_CHANGED = range(4)
 
     def __init__(self, oldNode, newNode):
         self._oldNode = oldNode
@@ -12,7 +9,7 @@ class DiffNode:
 
     @property
     def children(self):
-        return [ i for i in self._children]
+        return [i for i in self._children]
 
     def findChild(self, address):
         for child in self._children:
@@ -59,13 +56,18 @@ class DiffNode:
     def addChild(self, child):
         self._children.append(child)
 
+
 class HeapDumpDiff:
     def __init__(self, heap1, heap2):
         self._heap1 = heap1
         self._heap2 = heap2
 
-        self._appTree = self._createTrees(None, self._heap1.appRootNode, self._heap2.appRootNode)
-        self._zygoteTree = self._createTrees(None, self._heap1.zygoteRootNode, self._heap2.zygoteRootNode)
+        self._appTree = self._createTrees(
+            None, self._heap1.appRootNode, self._heap2.appRootNode
+        )
+        self._zygoteTree = self._createTrees(
+            None, self._heap1.zygoteRootNode, self._heap2.zygoteRootNode
+        )
 
     def _createTrees(self, parentNode, oldTree, newTree):
         diffNode = DiffNode(oldTree, newTree)

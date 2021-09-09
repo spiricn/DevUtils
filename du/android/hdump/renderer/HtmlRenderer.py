@@ -5,7 +5,7 @@ from du.android.hdump.HeapDumpDiff import HeapDumpDiff
 from du.android.hdump.renderer.BaseRenderer import BaseRenderer
 
 
-htmlBase = '''\
+htmlBase = """\
 <html>
 
 <head>
@@ -133,11 +133,12 @@ htmlBase = '''\
 </head>
 
 <body>
-'''
+"""
+
+
 class HtmlRenderer(BaseRenderer):
     def __init__(self):
         BaseRenderer.__init__(self)
-
 
     def render(self, stream, renderObj):
         if isinstance(renderObj, HeapDump) or isinstance(renderObj, HeapDumpDiff):
@@ -147,49 +148,64 @@ class HtmlRenderer(BaseRenderer):
 
             self._stream.write(htmlBase)
 
-            nodes = (('Zygote', heapDump.zygoteRootNode), ('App', heapDump.appRootNode))
+            nodes = (("Zygote", heapDump.zygoteRootNode), ("App", heapDump.appRootNode))
 
             self._idCounter = 0
 
             for nodeName, node in nodes:
                 self._stream.write('<div class="css-treeview">\n')
 
-                self._stream.write('<ul>\n')
+                self._stream.write("<ul>\n")
 
                 self._renderNode(nodeName, 0, node)
 
-                self._stream.write('</ul>\n')
+                self._stream.write("</ul>\n")
 
-                self._stream.write('</div>\n')
+                self._stream.write("</div>\n")
 
-            self._stream.write('</body></html>')
+            self._stream.write("</body></html>")
         else:
             raise NotImplementedError()
 
     def _renderNode(self, rootName, indent, node):
         if node.frame:
-            indentStr = indent * '  '
+            indentStr = indent * "  "
 
             self._idCounter += 1
 
-            itemId = 'item-%d' % self._idCounter
+            itemId = "item-%d" % self._idCounter
 
             if rootName:
-                label = str(node.size) + ' ' + rootName
+                label = str(node.size) + " " + rootName
             else:
-                label = str(node.size) + ' ' + os.path.basename(node.frame.library) + ' ' + node.frame.symbol.file + ' ' + node.frame.symbol.function + ':' + str(node.frame.symbol.line)
+                label = (
+                    str(node.size)
+                    + " "
+                    + os.path.basename(node.frame.library)
+                    + " "
+                    + node.frame.symbol.file
+                    + " "
+                    + node.frame.symbol.function
+                    + ":"
+                    + str(node.frame.symbol.line)
+                )
 
             if node.children:
-                self._stream.write(indentStr + '<li><input type="checkbox" id="%s"><label for="%s">%s</label>\n' % (itemId, itemId, label))
+                self._stream.write(
+                    indentStr
+                    + '<li><input type="checkbox" id="%s"><label for="%s">%s</label>\n'
+                    % (itemId, itemId, label)
+                )
             else:
-                self._stream.write(indentStr + '<li>%s</li>' % label)
+                self._stream.write(indentStr + "<li>%s</li>" % label)
 
-            self._stream.write(indentStr + '<ul>\n')
+            self._stream.write(indentStr + "<ul>\n")
 
             # Iterate trough children, sorted by size
-            for child in sorted(node.children, key=lambda child: child.size, reverse=True):
+            for child in sorted(
+                node.children, key=lambda child: child.size, reverse=True
+            ):
                 self._renderNode(None, indent + 1, child)
-            self._stream.write('</li>')
+            self._stream.write("</li>")
 
-            self._stream.write(indentStr + '</ul>\n')
-
+            self._stream.write(indentStr + "</ul>\n")

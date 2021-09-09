@@ -10,12 +10,12 @@ class BaseProcessor:
             stylesheet = self.getDefaultStylesheet()
 
         try:
-            sheetGlobals = {'Style' : Style, 'Color' : Color}
+            sheetGlobals = {"Style": Style, "Color": Color}
             sheetLocals = {}
             self._stylesheet = eval(stylesheet, sheetLocals, sheetGlobals)
 
         except Exception as e:
-            raise RuntimeError('Error parsing stylesheet: %r' % str(e))
+            raise RuntimeError("Error parsing stylesheet: %r" % str(e))
 
     @property
     def stylesheet(self):
@@ -23,7 +23,7 @@ class BaseProcessor:
 
     @staticmethod
     def getDefaultStylesheet():
-        raise RuntimeError('Not implemented')
+        raise RuntimeError("Not implemented")
 
     def transform(self, line):
-        raise RuntimeError('Not implemented')
+        raise RuntimeError("Not implemented")

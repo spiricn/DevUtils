@@ -5,10 +5,24 @@ import unittest
 
 
 class TestBase(unittest.TestCase):
-    TEMP_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'temp_dir')
+    TEMP_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "temp_dir")
 
     def setUp(self):
         pass
+
+    def getEnvVar(self, name):
+        """
+        Get environment variable
+
+        @param name Variable name
+        """
+
+        res = os.getenv(name)
+
+        if not res:
+            raise RuntimeError("Env variable not defined: %r" % name)
+
+        return res
 
     @classmethod
     def getTempPath(cls, name):
@@ -26,7 +40,7 @@ class TestBase(unittest.TestCase):
         # Save current args
         oldArgs = deepcopy(sys.argv)
 
-        sys.argv = ['python']
+        sys.argv = ["python"]
         sys.argv += args
 
         oldCwd = os.getcwd()

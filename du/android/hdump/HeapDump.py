@@ -6,10 +6,11 @@ from du.android.hdump.HeapDumpDoc import HeapDumpDoc
 from du.android.hdump.SymbolResolver import SymbolResolver
 
 
-logger = logging.getLogger(__name__.split('.')[-1])
+logger = logging.getLogger(__name__.split(".")[-1])
+
 
 class StackFrame:
-    def __init__(self, address=0, library='', symbol=SymbolResolver.UNKOWN_SYMBOL):
+    def __init__(self, address=0, library="", symbol=SymbolResolver.UNKOWN_SYMBOL):
         self._address = address
         self._library = library
         self._symbol = symbol
@@ -25,6 +26,7 @@ class StackFrame:
     @property
     def symbol(self):
         return self._symbol
+
 
 class Node:
     def __init__(self, frame=None):
@@ -74,9 +76,11 @@ class Node:
 
             self._children[frame.address].addStack(size, frameStack[1:])
 
-ProcessedStacks = namedtuple('ResolvedSymbols', 'zygoteStacks, appStacks, frameMap')
 
-Stack = namedtuple('Stack', 'size, numAllocations, frames')
+ProcessedStacks = namedtuple("ResolvedSymbols", "zygoteStacks, appStacks, frameMap")
+
+Stack = namedtuple("Stack", "size, numAllocations, frames")
+
 
 class HeapDump:
     def __init__(self, string, symbolDirs=None):
@@ -116,11 +120,14 @@ class HeapDump:
                     # Find address mapping
                     pm = None
                     for i in doc.pidMaps:
-                        if frameAddress >= i.startAddress and frameAddress <= i.endAddress:
+                        if (
+                            frameAddress >= i.startAddress
+                            and frameAddress <= i.endAddress
+                        ):
                             pm = i
                             break
                     if not pm:
-                        raise RuntimeError('could not find address mapping')
+                        raise RuntimeError("could not find address mapping")
 
                     offsetAddress = frameAddress - pm.startAddress + pm.offset
 

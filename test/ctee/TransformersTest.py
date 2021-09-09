@@ -12,39 +12,78 @@ class TerminalTransformerTest(TestBase):
 
     def testBasic(self):
         transformers = (
-            ('terminal', TerminalTransformer()),
-            ('html', HtmlTransformer()),
-            ('passtrough', PasstroughTransformer()),
-            )
+            ("terminal", TerminalTransformer()),
+            ("html", HtmlTransformer()),
+            ("passtrough", PasstroughTransformer()),
+        )
 
         for tfName, tf in transformers:
-            print('Testing ' + tfName + '...\n')
+            print("Testing " + tfName + "...\n")
 
             colors = (
-                ('red', Color.RED),
-                ('green', Color.GREEN),
-                ('blue', Color.BLUE),
-                ('cyan', Color.CYAN),
-                ('magenta', Color.MAGENTA),
-                ('yellow', Color.YELLOW),
-                ('black', Color.BLACK),
-                ('white', Color.WHITE))
+                ("red", Color.RED),
+                ("green", Color.GREEN),
+                ("blue", Color.BLUE),
+                ("cyan", Color.CYAN),
+                ("magenta", Color.MAGENTA),
+                ("yellow", Color.YELLOW),
+                ("black", Color.BLACK),
+                ("white", Color.WHITE),
+            )
 
-            print('Foreground test:')
+            print("Foreground test:")
             for name, color in colors:
-                print(name + '\t\t. . . ' + tf.transform('[###test###]', Style(fgColor=color)) + ' . . .')
-            print('\n')
+                print(
+                    name
+                    + "\t\t. . . "
+                    + tf.transform("[###test###]", Style(fgColor=color))
+                    + " . . ."
+                )
+            print("\n")
 
-            print('Background test:')
+            print("Background test:")
             for name, color in colors:
-                print(name + '\t\t. . . ' + tf.transform('[###test###]', Style(bgColor=color)) + ' . . .')
-            print('\n')
+                print(
+                    name
+                    + "\t\t. . . "
+                    + tf.transform("[###test###]", Style(bgColor=color))
+                    + " . . ."
+                )
+            print("\n")
 
-            print('Format test:')
-            print('bold' + '\t\t\t. . . ' + tf.transform('[###test###]', Style(bold=True)) + ' . . .')
-            print('underline' + '\t\t. . . ' + tf.transform('[###test###]', Style(underline=True)) + ' . . .')
-            print('both' + '\t\t\t. . . ' + tf.transform('[###test###]', Style(bold=True, underline=True)) + ' . . .')
-            print('\n')
+            print("Format test:")
+            print(
+                "bold"
+                + "\t\t\t. . . "
+                + tf.transform("[###test###]", Style(bold=True))
+                + " . . ."
+            )
+            print(
+                "underline"
+                + "\t\t. . . "
+                + tf.transform("[###test###]", Style(underline=True))
+                + " . . ."
+            )
+            print(
+                "both"
+                + "\t\t\t. . . "
+                + tf.transform("[###test###]", Style(bold=True, underline=True))
+                + " . . ."
+            )
+            print("\n")
 
-            print('Advanced:')
-            print('mix' + '\t\t\t. . . ' + tf.transform('[###test###]', Style(bgColor=Color.WHITE, fgColor=Color.BLUE, bold=True, underline=True)) + ' . . .')
+            print("Advanced:")
+            print(
+                "mix"
+                + "\t\t\t. . . "
+                + tf.transform(
+                    "[###test###]",
+                    Style(
+                        bgColor=Color.WHITE,
+                        fgColor=Color.BLUE,
+                        bold=True,
+                        underline=True,
+                    ),
+                )
+                + " . . ."
+            )

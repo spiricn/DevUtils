@@ -3,16 +3,16 @@ class BaseTransformer:
         pass
 
     def getHeader(self):
-        return ''
+        return ""
 
     def getTrailer(self):
-        return ''
+        return ""
 
     def transform(self, line, style):
-        raise RuntimeError('Not implemented')
+        raise RuntimeError("Not implemented")
 
     def onLineStart(self):
-        return ''
+        return ""
 
     def onLineEnd(self):
-        return ''
+        return ""

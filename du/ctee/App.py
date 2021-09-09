@@ -1,7 +1,6 @@
 import argparse
 import signal
 import sys
-import codecs
 
 from du.ctee.Ctee import Ctee
 from du.ctee.processors.GccProcessor import GccProcessor
@@ -13,32 +12,43 @@ from du.ctee.transformers.TerminalTransformer import TerminalTransformer
 
 
 PROCESSOR_MAP = {
-    'logcat' : LogcatProcessor,
-    'gcc' : GccProcessor,
-    'passtrough' : PasstroughProcessor
+    "logcat": LogcatProcessor,
+    "gcc": GccProcessor,
+    "passtrough": PasstroughProcessor,
 }
 
 TRANSFORMER_MAP = {
-    'terminal' : TerminalTransformer,
-    'passtrough' : PasstroughTransformer,
-    'html' : HtmlTransformer
+    "terminal": TerminalTransformer,
+    "passtrough": PasstroughTransformer,
+    "html": HtmlTransformer,
 }
+
 
 def interruptHandler(signal, frame, ctee):
     ctee.stop()
 
+
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-stylesheet',
-                        help='if provided, app will output the stylesheet for given processor and exit')
-    parser.add_argument('-input',
-                        help='input file. To use STDIN instead, set this to -')
-    parser.add_argument('-processor',
-                        help='input stream processor. Available processors: %s' % ','.join(PROCESSOR_MAP.keys()))
-    parser.add_argument('-outputs', nargs='+',
-                        help='iist of <output,transformer> pairs; available transformers: %s' % (','.join(TRANSFORMER_MAP.keys())))
-
+    parser.add_argument(
+        "-stylesheet",
+        help="if provided, app will output the stylesheet for given processor and exit",
+    )
+    parser.add_argument(
+        "-input", help="input file. To use STDIN instead, set this to -"
+    )
+    parser.add_argument(
+        "-processor",
+        help="input stream processor. Available processors: %s"
+        % ",".join(PROCESSOR_MAP.keys()),
+    )
+    parser.add_argument(
+        "-outputs",
+        nargs="+",
+        help="iist of <output,transformer> pairs; available transformers: %s"
+        % (",".join(TRANSFORMER_MAP.keys())),
+    )
 
     args = parser.parse_args()
 
@@ -48,25 +58,25 @@ def main():
             return 0
 
         else:
-            print('invalid processor name %r' % args.processor)
+            print("invalid processor name %r" % args.processor)
             return -1
 
     ctee = Ctee()
 
     inputStream = None
 
-    if args.input == '-':
-        inputStream = codecs.getreader(sys.stdin.encoding)(sys.stdin.buffer, errors='replace')
+    if args.input == "-":
+        inputStream = sys.stdin
     elif args.input:
-        inputStream = open(args.input, 'r', encoding='utf-8', errors='replace')
+        inputStream = open(args.input, "rb")
     else:
-        print('input not provided')
+        print("input not provided")
         return -1
 
     if args.processor in PROCESSOR_MAP:
         processor = PROCESSOR_MAP[args.processor]()
     else:
-        print('invalid processor name %r' % args.processor)
+        print("invalid processor name %r" % args.processor)
 
     ctee.setInput(inputStream, processor)
 
@@ -78,20 +88,23 @@ def main():
             outputStream = args.outputs[i + 0]
             outputTransformerName = args.outputs[i + 1]
 
-            if outputStream == '-':
+            if outputStream == "-":
                 outputStream = sys.stdout
             else:
-                outputStream = open(outputStream, 'w', encoding='utf-8', errors='ignore')
+                outputStream = open(outputStream, "w")
 
             if outputTransformerName in TRANSFORMER_MAP:
                 transformer = TRANSFORMER_MAP[outputTransformerName]()
             else:
-                raise RuntimeError('Invalid transformer name %r' % outputTransformerName)
+                raise RuntimeError(
+                    "Invalid transformer name %r" % outputTransformerName
+                )
 
             ctee.addOutput(outputStream, transformer)
 
-
-    signal.signal(signal.SIGINT, lambda signal, frame: interruptHandler(signal, frame, ctee))
+    signal.signal(
+        signal.SIGINT, lambda signal, frame: interruptHandler(signal, frame, ctee)
+    )
 
     ctee.start()
 
@@ -99,5 +112,6 @@ def main():
 
     return 0
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sys.exit(main())

@@ -1,11 +1,10 @@
 from collections import namedtuple
 
 
-TYPE_STRING, \
-TYPE_INT32, \
-TYPE_BOOL = range(3)
+TYPE_STRING, TYPE_INT32, TYPE_BOOL = range(3)
 
-Param = namedtuple('Param', 'type, name, value')
+Param = namedtuple("Param", "type, name, value")
+
 
 class Generator:
     def __init__(self, params):

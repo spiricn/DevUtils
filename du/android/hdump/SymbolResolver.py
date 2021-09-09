@@ -2,16 +2,17 @@ from collections import namedtuple
 import logging
 import os
 
-from du.Utils import shellCommand
+from du.utils.ShellCommand import ShellCommand, CommandFailedException
 
 
-logger = logging.getLogger(__name__.split('.')[-1])
+logger = logging.getLogger(__name__.split(".")[-1])
 
 
-Symbol = namedtuple('Symbol', 'file, function, line')
+Symbol = namedtuple("Symbol", "file, function, line")
+
 
 class SymbolResolver:
-    UNKOWN_SYMBOL = Symbol('??', '??', 0)
+    UNKOWN_SYMBOL = Symbol("??", "??", 0)
 
     def __init__(self, directories):
         self._libraries = {}
@@ -22,7 +23,7 @@ class SymbolResolver:
             for directory in directories:
                 for root, dirs, files in os.walk(directory):
                     for fileName in files:
-                        if os.path.splitext(fileName)[1] == '.so':
+                        if os.path.splitext(fileName)[1] == ".so":
                             fullPath = os.path.abspath(os.path.join(root, fileName))
                             name = os.path.basename(fileName)
 
@@ -38,21 +39,20 @@ class SymbolResolver:
 
         address = address
 
-        cmd = shellCommand(['addr2line', '-C', '-f', '-e', libraryPath, hex(address)])
-        if cmd.rc != 0:
-            logger.error('command failed (%d): %r' % (cmd.rc, cmd.strStderr))
+        try:
+            lines = ShellCommand.execute(
+                ["addr2line", "-C", "-f", "-e", libraryPath, hex(address)]
+            ).stdoutStr.splitlines()
+        except CommandFailedException:
             return self.UNKOWN_SYMBOL
-        lines = cmd.strStdout.splitlines()
 
         function = lines[0]
 
-        file, line = lines[1].split(':')
+        file, line = lines[1].split(":")
 
         try:
-            line = int(line.split(' ')[0])
+            line = int(line.split(" ")[0])
         except ValueError:
             line = -1
 
         return Symbol(file, function, line)
-
-

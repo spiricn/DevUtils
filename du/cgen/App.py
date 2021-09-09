@@ -7,40 +7,51 @@ from du.cgen.Generator import TYPE_BOOL, TYPE_INT32, TYPE_STRING, Param
 from du.cgen.JavaGenerator import JavaGenerator
 
 
-LANG_JAVA = 'java'
+LANG_JAVA = "java"
+
 
 def main():
     supportedLangs = [LANG_JAVA]
 
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(levelname)s/%(name)s: %(message)s')
+    logging.basicConfig(
+        level=logging.DEBUG, format="%(levelname)s/%(name)s: %(message)s"
+    )
 
-    logger = logging.getLogger(__name__.split('.')[-1])
+    logger = logging.getLogger(__name__.split(".")[-1])
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('lang',
-                        help='generator language. available languages=%s' % ','.join(supportedLangs))
-    parser.add_argument('outputFile',
-                        help='output file path; generated source will be stored here. to use stdout set to -')
-    parser.add_argument('-java_class',
-                        help='if language is set to %r, this will be the name of the java class generated' % LANG_JAVA)
-    parser.add_argument('-java_package',
-                        help='if lang is set to %r, this will be the package of the java class generated' % LANG_JAVA)
-    parser.add_argument('-args', nargs='+',
-                        help='a list of <name, value> pairs')
+    parser.add_argument(
+        "lang",
+        help="generator language. available languages=%s" % ",".join(supportedLangs),
+    )
+    parser.add_argument(
+        "outputFile",
+        help="output file path; generated source will be stored here. to use stdout set to -",
+    )
+    parser.add_argument(
+        "-java_class",
+        help="if language is set to %r, this will be the name of the java class generated"
+        % LANG_JAVA,
+    )
+    parser.add_argument(
+        "-java_package",
+        help="if lang is set to %r, this will be the package of the java class generated"
+        % LANG_JAVA,
+    )
+    parser.add_argument("-args", nargs="+", help="a list of <name, value> pairs")
 
     args = parser.parse_args()
 
     if args.lang not in supportedLangs:
-        logger.error('Invalid language: %r' % args.lang)
-        return -1;
+        logger.error("Invalid language: %r" % args.lang)
+        return -1
 
     params = []
 
     if args.args:
         if len(args.args) % 2 != 0:
-            logger.error('Invalid number of args: %d' % len(args.args))
+            logger.error("Invalid number of args: %d" % len(args.args))
             return -1
 
         # Parse arguments
@@ -60,8 +71,8 @@ def main():
 
             # Try boolean
             if value == None:
-                if arg.lower() in ['true', 'false']:
-                    value = True if arg.lower() == 'true' else False
+                if arg.lower() in ["true", "false"]:
+                    value = True if arg.lower() == "true" else False
                     paramType = TYPE_BOOL
 
             # Default to string
@@ -72,21 +83,21 @@ def main():
             param = Param(paramType, name, value)
             params.append(param)
 
-            logger.debug('Adding param: %s' % str(param))
+            logger.debug("Adding param: %s" % str(param))
 
     if args.lang not in supportedLangs:
-        logger.error('Invalid language: %r' % args.lang)
-        return -1;
+        logger.error("Invalid language: %r" % args.lang)
+        return -1
 
-    logger.debug('Generating %s ..' % args.lang)
+    logger.debug("Generating %s .." % args.lang)
 
     if args.lang == LANG_JAVA:
         if not args.java_class:
-            logger.error('Java class not provided')
+            logger.error("Java class not provided")
             return -1
 
         if not args.java_package:
-            logger.error('Java package not provided')
+            logger.error("Java package not provided")
             return -1
         generator = JavaGenerator(args.java_package, args.java_class, params)
     else:
@@ -95,29 +106,29 @@ def main():
     newContent = generator.generate()
 
     oldContent = None
-    if args.outputFile != '-' and  os.path.exists(args.outputFile):
-        with open(args.outputFile, 'r') as fileObj:
+    if args.outputFile != "-" and os.path.exists(args.outputFile):
+        with open(args.outputFile, "r") as fileObj:
             oldContent = fileObj.read()
 
         if oldContent == newContent:
-            logger.debug('File up-to-date')
+            logger.debug("File up-to-date")
             return 0
 
-    if args.outputFile != '-':
+    if args.outputFile != "-":
         outDir = os.path.dirname(args.outputFile)
 
         if not os.path.exists(outDir):
             os.makedirs(outDir)
 
-        with open(args.outputFile, 'w') as fileObj:
+        with open(args.outputFile, "w") as fileObj:
             fileObj.write(newContent)
     else:
         sys.stdout.write(newContent)
 
-    logger.debug('File updated: %r' % args.outputFile)
+    logger.debug("File updated: %r" % args.outputFile)
 
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

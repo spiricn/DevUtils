@@ -20,4 +20,3 @@ class QtRenderer:
             raise NotImplementedError()
 
         app.exec_()
-
