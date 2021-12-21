@@ -10,6 +10,7 @@ STYLE_MAP = {
     "WARNING": "warning",
     "ERROR": "error",
     "VERBOSE": "verbose",
+    "CRITICAL": "fatal",
 }
 
 
