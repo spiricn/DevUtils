@@ -65,13 +65,17 @@ def main():
 
     inputStream = None
 
+    closeFd = True
     if args.input == "-":
-        inputStream = sys.stdin
+        args.input = 0
+        closeFd = False
     elif args.input:
         inputStream = open(args.input, "rb")
     else:
         print("input not provided")
         return -1
+
+    inputStream = open(0, "r", closefd=closeFd, encoding="utf8", errors="replace")
 
     if args.processor in PROCESSOR_MAP:
         processor = PROCESSOR_MAP[args.processor]()
