@@ -8,20 +8,6 @@ class LogcatProcessor(BaseProcessor):
         BaseProcessor.__init__(self, stylesheet)
         self._maxTagLen = 0
 
-    @staticmethod
-    def getDefaultStylesheet():
-        return """\
-{
-'verbose' : Style(fgColor=Color.WHITE, bold=True),
-'error' : Style(fgColor=Color.RED, bold=True),
-'debug' : Style(fgColor=Color.CYAN, bold=True),
-'warning' : Style(fgColor=Color.YELLOW, bold=True),
-'fatal' : Style(fgColor=Color.RED, bold=True),
-'info' : Style(fgColor=Color.GREEN, bold=True),
-'meta' : Style(fgColor=Color.WHITE, bgColor=Color.BLACK),
-}
-"""
-
     def getStyle(self, line):
         parsed = LogcatParser.parseLine(line)
         if not parsed:

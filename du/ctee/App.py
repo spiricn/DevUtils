@@ -3,13 +3,18 @@ import signal
 import sys
 
 from du.ctee.Ctee import Ctee
+from du.ctee.processors.BaseProcessor import BaseProcessor
 from du.ctee.processors.GccProcessor import GccProcessor
 from du.ctee.processors.LogcatProcessor import LogcatProcessor
 from du.ctee.processors.PasstroughProcessor import PasstroughProcessor
 from du.ctee.transformers.HtmlTransformer import HtmlTransformer
 from du.ctee.transformers.PasstroughTransformer import PasstroughTransformer
 from du.ctee.transformers.TerminalTransformer import TerminalTransformer
+from du.manifest.ManifestParser import ManifestParser
+from du.manifest.ManifestDict import ManifestDict
 
+ATTR_PROCESSOR_NAME = "PROCESSOR_NAME"
+ATTR_PROCESSOR_CLASS = "PROCESSOR_CLASS"
 
 PROCESSOR_MAP = {
     "logcat": LogcatProcessor,
@@ -50,6 +55,12 @@ def main():
         % (",".join(TRANSFORMER_MAP.keys())),
     )
 
+    parser.add_argument(
+        "-external_processors",
+        nargs="+",
+        help="iist of external processor script paths",
+    )
+
     args = parser.parse_args()
 
     if args.stylesheet:
@@ -60,6 +71,23 @@ def main():
         else:
             print("invalid processor name %r" % args.processor)
             return -1
+
+    # Load external processors
+    for externalProcessor in args.external_processors:
+        with open(externalProcessor, "r") as fileObj:
+            manifestLocals = {"BaseProcessor": BaseProcessor}
+
+            ManifestParser.executeString(fileObj.read(), manifestLocals)
+
+            manifestLocals = ManifestDict(manifestLocals)
+
+            name = manifestLocals.getStr(ATTR_PROCESSOR_NAME)
+            clazz = manifestLocals.get(ATTR_PROCESSOR_CLASS)
+
+            if name in PROCESSOR_MAP:
+                raise RuntimeError("duplicate processor name %r" % name)
+
+            PROCESSOR_MAP[name] = clazz
 
     ctee = Ctee()
 
