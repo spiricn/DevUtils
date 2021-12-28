@@ -1,27 +1,19 @@
 import sys
-
 import du
-from du.android.hdump.App import main as hdumpMain
-from du.cgen.App import main as cgenMain
-from du.ctee.App import main as cteeMain
-from du.drepo.App import main as drepoMain
-from du.docker.App import main as dockerMain
-from du.afact.App import main as afactMain
-from du.denv.App import main as denvMain
-from du.android.adb.App import main as adbMain
+import importlib
 
 
 def main():
     apps = {
-        "drepo": drepoMain,
         "version": lambda: sys.stdout.write(du.__version_name__ + "\n"),
-        "ctee": cteeMain,
-        "cgen": cgenMain,
-        "hdump": hdumpMain,
-        "docker": dockerMain,
-        "afact": afactMain,
-        "denv": denvMain,
-        "adb": adbMain,
+        "drepo": "du.drepo.App",
+        "ctee": "du.ctee.App",
+        "cgen": "du.cgen.App",
+        "hdump": "du.android.hdump.App",
+        "docker": "du.docker.App",
+        "afact": "du.afact.App",
+        "denv": "du.denv.App",
+        "adb": "du.android.adb.App",
     }
 
     if len(sys.argv) < 2 or sys.argv[1] in ["--help", "help", "--h"]:
@@ -35,7 +27,8 @@ def main():
         return -1
 
     sys.argv.pop(1)
-    return apps[appName]()
+
+    return importlib.import_module(apps[appName]).main()
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 #
 # Run python commands with du in PYTHONAPTH
 #
@@ -14,7 +13,7 @@ du_python_run() {
 # Discover & run all tests
 #
 du_run_tests() {
-    local tempDir=`pwd`/test/temp_dir
+    local tempDir=$(pwd)/test/temp_dir
 
     echo "Deleting temp dir: $tempDir"
 
@@ -56,15 +55,24 @@ du_format_code() {
 du_package() {
     pushd ${DU_ROOT}
 
-    local versionName=`git describe`
-    local buildTime=`date +'%d/%m/%y_%H:%M:%S'`
+    local versionName=$(git describe)
+    local buildTime=$(date +'%d/%m/%y_%H:%M:%S')
 
     # Write version meta info
-    printf "versionName = \"${versionName}\"\nbuildTime = \"${buildTime}\"\n" > du/VersionMeta.py
+    printf "versionName = \"${versionName}\"\nbuildTime = \"${buildTime}\"\n" >du/VersionMeta.py
 
+    # Note: hidden imports are necessary because of the lazy module loading in __main__.py
     pyinstaller \
         -F \
-        -n du du/__main__.py
+        -n du du/__main__.py \
+        --hidden-import du.drepo.App \
+        --hidden-import du.ctee.App \
+        --hidden-import du.cgen.App \
+        --hidden-import du.android.hdump.App \
+        --hidden-import du.docker.App \
+        --hidden-import du.afact.App \
+        --hidden-import du.denv.App \
+        --hidden-import du.android.adb.App
 
     popd
 }
@@ -78,12 +86,11 @@ du_run() {
     return $?
 }
 
-
 #
 # Entry point
 #
 main() {
-    export DU_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+    export DU_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
     export -f du_python_run
     export -f du_run_tests
